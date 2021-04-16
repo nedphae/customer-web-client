@@ -1,21 +1,28 @@
 .App {
+  position: fixed;
+  height: 80px;
+  width: 80px;
+  right: 10px;
   text-align: center;
+  bottom: 40%;
+  z-index: 9999;
 }
 
 .App-logo {
-  height: 40vmin;
+  height: 80px;
+  width: 80px;
   pointer-events: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .App-logo {
+  .App-logo-n {
     animation: App-logo-spin infinite 20s linear;
   }
 }
 
 .App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+  height: 80px;
+  width: 80px;
   display: flex;
   flex-direction: column;
   align-items: center;
