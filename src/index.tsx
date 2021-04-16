@@ -8,9 +8,9 @@ const myDiv = document.createElement("div");
 document.body.appendChild(myDiv)
 
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  // <React.StrictMode>
+    <App />,
+  // </React.StrictMode>,
   myDiv // document.getElementById('root')
 );
 
