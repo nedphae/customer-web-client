@@ -1,7 +1,6 @@
 import React from 'react';
 
 import Chat, { Bubble, useMessages } from '@chatui/core';
-import '@chatui/core/dist/index.css';
 
 const ChatUI =  () => {
   const { messages, appendMsg, setTyping } = useMessages([]);

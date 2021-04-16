@@ -10,6 +10,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
+
+import root from "react-shadow/styled-components";
+// css for chatui
+import styles from "!raw-loader!@chatui/core/dist/index.css";
+
 import ChatUI from './ChatUI';
 
 function PaperComponent(props: PaperProps) {
@@ -56,7 +61,14 @@ export default function DraggableDialog() {
             occasionally.
           </DialogContentText>
           {/* 样式冲突 TODO: 使用 Shadow DOM */}
-          <ChatUI />
+          <root.div className="quote">
+            <style type="text/css">{styles}</style>
+            <DialogContentText>
+              To subscribe to this website, please enter your email address here. We will send updates
+              occasionally.
+            </DialogContentText>
+            <ChatUI />
+          </root.div>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
