@@ -25,6 +25,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "one-file-build": "npx ./scripts/build.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -47,6 +48,8 @@
     ]
   },
   "devDependencies": {
-    "raw-loader": "^4.0.2"
+    "mini-css-extract-plugin": "^1.4.1",
+    "raw-loader": "^4.0.2",
+    "rewire": "^5.0.0"
   }
 }

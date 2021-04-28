@@ -10,9 +10,11 @@
     <link rel="stylesheet" href="http://g.alicdn.com/chatui/sdk-v2/0.1.1/sdk.css">
   </head>
   <body>
-    <!-- 这里填充一个机构id，需要后期根据服务器设置 -->
-    <div id="org-id" style="display: none;"><%= foo %></div>
+    <!-- 这里填充一个调度信息，包括机构ID，接待组，需要后期根据服务器设置 -->
+    <div id="shunt-info" style="display: none;"><%= foo %></div>
     <div id="root"></div>
+    <script src="./scripts/socket.io.min.js"></script>
+    <script src="./scripts/axios.min.js"></script>
     <script src="http://g.alicdn.com/chatui/sdk-v2/0.1.1/sdk.js"></script>
     <script src="http://g.alicdn.com/chatui/extensions/0.0.6/isv-parser.js"></script>
     <script src="./setup.js"></script>

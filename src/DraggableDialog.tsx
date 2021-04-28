@@ -11,12 +11,6 @@ import Paper, { PaperProps } from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 
-import root from 'react-shadow/styled-components';
-// css for chatui
-const styles = require('!!raw-loader!@chatui/core/dist/index.css');
-
-import ChatUI from './ChatUI';
-
 function PaperComponent(props: PaperProps) {
   return (
     <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
@@ -36,8 +30,7 @@ export default function DraggableDialog() {
     setOpen(false);
   };
 
-  const fuckAli = String(styles.default).replaceAll(':root', ':host')
-
+  // 使用 css in js 替换 
   return (
     <div>
       <IconButton color="primary" onClick={handleClickOpen} aria-label="add to shopping cart">
@@ -63,10 +56,7 @@ export default function DraggableDialog() {
             occasionally.
           </DialogContentText>
           {/* 样式冲突 TODO: 使用 Shadow DOM */}
-          <root.div className="quote">
-            <ChatUI /> 
-            <style type="text/css">{fuckAli}</style>
-          </root.div>
+          <iframe />
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
