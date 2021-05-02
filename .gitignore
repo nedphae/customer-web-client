@@ -4,7 +4,7 @@
 *node_modules
 /.pnp
 .pnp.js
-chat-server/src/public
+chat-server/src/public/file
 
 # testing
 /coverage

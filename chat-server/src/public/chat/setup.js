@@ -1,7 +1,17 @@
 //TODO 获取一些配置, 先使用默认配置
 
+// step 0: 根据 配置的接待组 uuid 获取接待组信息
+
+function getRequest(body) {
+  return {
+    header: { mid : uuidv4().substr(0, 8)},
+    // message
+    body,
+  }
+}
+
 // step 1: 注册客户信息
-axios.post('/access/customer/register', {
+axios.post('http://localhost:8700/access/customer/register', {
   organizationId: 9491,
   title: '测试客服系统',
   referrer: 'localhost',
@@ -11,10 +21,11 @@ axios.post('/access/customer/register', {
   email: '666@666.com',
 }).then((response) => {
   // step 2: 检查是否要直接转人工
-  if (response) {
-    const userId = response.userId
-    const interaction = response.interaction
-    let staffId = response.staffId
+  const data = response.data
+  if (data) {
+    const userId = data.userId
+    const interaction = data.interaction
+    let staffId = data.staffId
     let queue
 
     // step 3: 生成 chatsdk
@@ -40,7 +51,7 @@ axios.post('/access/customer/register', {
         send: function (msg) {
           if (msg.type === 'text') {
             return {
-              url: 'http://localhost:8707/bot/qa',
+              url: 'http://localhost:8700/bot/qa',
               data: {
                 // 用户id
                 u: userId,
@@ -54,7 +65,12 @@ axios.post('/access/customer/register', {
       // 转人工配置
       makeSocket({ ctx }) {
         // 连接 ws (socket.io)
-        const socket = io("https://localhost:8700/socket.io/im/customer");
+        const socket = io("http://localhost:8700/im/customer", 
+        {
+          query: {
+            token: 'customer',
+          },
+        });
         // 排队提示消息的ID
         let queueMsgId;
 
@@ -87,19 +103,20 @@ axios.post('/access/customer/register', {
           let info
           if (interaction == 1) {
             info = {
-              organizationId: response.organizationId,
-              conversationId: response.conversationId,
-              staffId: response.staffId,
-              userId: response.userId,
+              organizationId: data.organizationId,
+              conversationId: data.conversationId,
+              staffId: data.staffId,
+              userId: data.userId,
             }
           } else {
             info = {
-              organizationId: response.organizationId,
-              userId: response.userId,
+              organizationId: data.organizationId,
+              userId: data.userId,
             }
           }
 
-          socket.emit('status/register', info, (response) => {
+          const request  = getRequest(info)
+          socket.emit('status/register', request, (response) => {
             const conversationView = response.body;
             staffId = conversationView.staffId;
             queue = conversationView.queue;
@@ -143,7 +160,7 @@ axios.post('/access/customer/register', {
           socket.on('assign', (request, cb) => {
             queue = request.body.queue.num
             //TODO: 检查分配事件，是否分配了客服，还是继续等待
-            if () {
+            if (true) {
               // 移除排队消息
               ctx.deleteMessage(queueMsgId);
             } else {
@@ -173,17 +190,15 @@ axios.post('/access/customer/register', {
                 text: msg.content.text,
               },
             }
-            const request = {
-              header: { mid : uuidv4().substr(0, 8)},
+            const request = getRequest(
               // message
-              body: {
-                uuid: uuidv4().substr(0, 8),
-                to: staffId,
-                type: 1,
-                creatorType: 2,
-                content,
-              },
-            }
+              {
+              uuid: uuidv4().substr(0, 8),
+              to: staffId,
+              type: 1,
+              creatorType: 2,
+              content,
+            })
             socket.emit('msg/send', request, (response) => {
               msg._id = response.body.seqId.toString();
               ctx.updateMessage(msg)

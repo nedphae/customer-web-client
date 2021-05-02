@@ -16,7 +16,7 @@ const { BAD_REQUEST } = StatusCodes;
 
 app.set('view engine', 'ejs');
 
-app.get('/', (req, res) => {
+app.get('/chat', (req, res) => {
   res.render('index', {foo: 'FOO'});
 });
 
