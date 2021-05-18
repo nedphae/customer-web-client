@@ -17,7 +17,21 @@ const { BAD_REQUEST } = StatusCodes;
 app.set('view engine', 'ejs');
 
 app.get('/chat', (req, res) => {
-  res.render('index', {foo: 'FOO'});
+    const query = req.query
+    const userInfo = {
+        shuntId: query.shuntId,
+        title: query.title,
+        referrer: query.referrer,
+        uid: query.uid,
+        staffid: query.staffid,
+        groupid: query.groupid,
+        robotShuntSwitch: query.robotShuntSwitch,
+        name: query.name,
+        email: query.email,
+        mobile: query.mobile,
+        vipLevel: query.vipLevel,
+    }
+    res.render('index', { userInfo: userInfo });
 });
 
 
@@ -26,7 +40,7 @@ app.get('/chat', (req, res) => {
  ***********************************************************************************/
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // Show routes called in console during development
@@ -62,7 +76,7 @@ app.set('views', viewsDir);
 const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 app.get('*', (req: Request, res: Response) => {
-    res.sendFile('index.html', {root: viewsDir});
+    res.sendFile('index.html', { root: viewsDir });
 });
 
 // Export express instance
