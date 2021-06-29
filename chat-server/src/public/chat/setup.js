@@ -28,7 +28,7 @@ axios.post('/access/customer/register', {
     const interaction = data.interaction
     let staffId = data.staffId
     let queue
-    let lastMsgId = '0'
+    let lastMsgId = ''
 
     // step 3: 生成 chatsdk
     const bot = new ChatSDK({
@@ -53,7 +53,7 @@ axios.post('/access/customer/register', {
       requests: {
         history: function () {
           return {
-            url: '/message/history?lastMsgId=' + lastMsgId + '&pageSize=20',
+            url: '/access/customer/message/history?userId=' + userId + '&lastSeqId=' + lastMsgId + '&pageSize=20',
           };
         },
         send: function (msg) {
@@ -62,9 +62,10 @@ axios.post('/access/customer/register', {
               url: '/bot/qa',
               data: {
                 // 用户id
+                c: data.id,
                 u: userId,
                 b: staffId,
-                q: msg.content.text,
+                q: JSON.stringify(msg),
               }
             };
           }
@@ -83,7 +84,7 @@ axios.post('/access/customer/register', {
           // 根据 requestType 处理数据
           if (requestType === 'history' && res.body) {
             // 用 isv 消息解析器处理数据
-            return isvParser({ data: res });
+            return res;
           }
 
           if (requestType === 'send' && res.body) {
@@ -141,7 +142,7 @@ axios.post('/access/customer/register', {
           if (interaction == 1) {
             info = {
               organizationId: data.organizationId,
-              conversationId: data.conversationId,
+              conversationId: data.id,
               staffId: data.staffId,
               userId: data.userId,
             }
