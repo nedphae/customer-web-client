@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import express, { NextFunction, Request, Response } from 'express';
 import StatusCodes from 'http-status-codes';
 import 'express-async-errors';
+import { v4 as uuidv4 } from 'uuid';
 
 import BaseRouter from './routes';
 import logger from '@shared/Logger';
@@ -18,19 +19,26 @@ app.set('view engine', 'ejs');
 
 app.get('/chat', (req, res) => {
     const query = req.query
+    let cookieUid = req.cookies['uid'];
+    cookieUid = cookieUid || cookieUid !== '' ? cookieUid : null;
+    const defaultUid = uuidv4().substr(0, 8);
     const userInfo = {
         shuntId: query.shuntId,
         title: query.title,
         referrer: query.referrer,
-        uid: query.uid,
+        // 如果没有传递 uid 就自动生成一个
+        uid: query.uid ?? cookieUid ?? defaultUid,
         staffid: query.staffid,
         groupid: query.groupid,
         robotShuntSwitch: query.robotShuntSwitch,
-        name: query.name,
+        name: query.name ?? `客户_${defaultUid}`,
         email: query.email,
         mobile: query.mobile,
         vipLevel: query.vipLevel,
     }
+
+    // 设置生成的 uid cookie 最后一次访问的一周内有效
+    res.cookie('uid', userInfo.uid, { expires: new Date(Date.now() + 7 * 24 * 3600), httpOnly: true });
     res.render('index', { userInfo: userInfo });
 });
 
