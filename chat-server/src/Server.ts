@@ -18,28 +18,32 @@ const { BAD_REQUEST } = StatusCodes;
 app.set('view engine', 'ejs');
 
 app.get('/chat', (req, res) => {
-    const query = req.query
-    let cookieUid = req.cookies['uid'];
-    cookieUid = cookieUid || cookieUid !== '' ? cookieUid : null;
-    const defaultUid = uuidv4().substr(0, 8);
-    const userInfo = {
-        shuntId: query.shuntId,
-        title: query.title,
-        referrer: query.referrer,
-        // 如果没有传递 uid 就自动生成一个
-        uid: query.uid ?? cookieUid ?? defaultUid,
-        staffid: query.staffid,
-        groupid: query.groupid,
-        robotShuntSwitch: query.robotShuntSwitch,
-        name: query.name ?? `客户_${defaultUid}`,
-        email: query.email,
-        mobile: query.mobile,
-        vipLevel: query.vipLevel,
+    const query = req.query || req.body
+    if (query) {
+        let cookieUid = req.cookies ? req.cookies['uid'] : null;
+        cookieUid = cookieUid && cookieUid !== '' ? cookieUid : null;
+        const defaultUid = uuidv4().substr(0, 8);
+        const userInfo = {
+            shuntId: query.shuntId,
+            // 如果没有传递 uid 就自动生成一个
+            uid: query.uid ?? cookieUid ?? defaultUid,
+            staffId: query.staffId,
+            groupid: query.groupId,
+            robotShuntSwitch: query.robotShuntSwitch,
+            name: query.name ?? `客户_${defaultUid}`,
+            email: query.email,
+            mobile: query.mobile,
+            vipLevel: query.vipLevel,
+            title: query.title,
+            referrer: query.referrer,
+        }
+    
+        // 设置生成的 uid cookie 最后一次访问的一周内有效
+        res.cookie('uid', userInfo.uid, { expires: new Date(Date.now() + 7 * 24 * 3600), httpOnly: true });
+        res.render('chat', { userInfo: userInfo });
+    } else {
+        res.status(404).send('Not found');
     }
-
-    // 设置生成的 uid cookie 最后一次访问的一周内有效
-    res.cookie('uid', userInfo.uid, { expires: new Date(Date.now() + 7 * 24 * 3600), httpOnly: true });
-    res.render('index', { userInfo: userInfo });
 });
 
 
