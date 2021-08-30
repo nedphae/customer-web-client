@@ -5,11 +5,11 @@ import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
-import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
+import ForumIcon from '@material-ui/icons/Forum';
+import Typography from '@material-ui/core/Typography';
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -20,21 +20,28 @@ function PaperComponent(props: PaperProps) {
 }
 
 export default function DraggableDialog() {
-  const [open, setOpen] = React.useState(true);
+  const [open, setOpen] = React.useState(false);
+  const [hidden, setHidden] = React.useState(true);
 
   const handleClickOpen = () => {
     setOpen(true);
+    setHidden(false);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    if (open) {
+      setHidden(true);
+    }
   };
 
   // 使用 css in js 替换 
   return (
     <div>
       <IconButton color="primary" onClick={handleClickOpen} aria-label="add to shopping cart">
-        <AddShoppingCartIcon />
+        <ForumIcon />
+        <Typography variant="button" display="block" gutterBottom>
+          联系客服
+        </Typography>
       </IconButton>
       <Dialog
         hideBackdrop
@@ -42,30 +49,24 @@ export default function DraggableDialog() {
         style={{ position: 'initial' }}
         disableBackdropClick
         open={open}
+        hidden={hidden}
         onClose={handleClose}
         PaperComponent={PaperComponent}
         aria-labelledby="draggable-dialog-title"
       >
-        <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-          机器人标题
-        </DialogTitle>
-        {/* 添加 chatui 组件 */}
-        <DialogContent>
-          <DialogContentText>
-            To subscribe to this website, please enter your email address here. We will send updates
-            occasionally.
-          </DialogContentText>
-          {/* 样式冲突 TODO: 使用 Shadow DOM */}
-          <iframe />
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose} color="primary">
+        {/* TODO 使用 CSS-in-JS */}
+        <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px' }} id="draggable-dialog-title">
+          <DialogActions style={{ width: '100%', padding: '0px 0px' }}>
+          <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleClose} color="primary">
-            Subscribe
-          </Button>
         </DialogActions>
+        </DialogTitle>
+        {/* 添加 chatui 组件 */}
+        <DialogContent style={{height: '550px', width: '460px', padding: '0px 0px' }}>
+          {/* 样式冲突 TODO: 使用 Shadow DOM iframe */}
+          <iframe src="https://www.qq.com" style={{ height: '550px', width: '460px', border: 'none', display: 'block'}}/>
+        </DialogContent>
       </Dialog>
     </div>
   );

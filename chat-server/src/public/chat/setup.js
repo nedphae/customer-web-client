@@ -27,16 +27,21 @@ axios.post('/access/customer/register', userInfo)
     // step 2: 检查是否要直接转人工
     const data = response.data
     if (data && data.errorCode === undefined) {
-      const userId = data.userId
-      const interaction = data.interaction
-      let staffId = data.staffId
-      let queue
+      const userId = data.userId;
+      const interaction = data.interaction;
+      let staffId = data.staffId;
+      let nickName = data.nickName;
+      let queue;
       let lastMsgId = '';
       let lastUpdateFile;
+      const config = JSON.parse(data.config);
+      const historyMsg = data.historyMsg ?? [];
+      historyMsg.push(...config.messages);
+      config.messages = historyMsg;
 
       // step 3: 生成 chatsdk
       const bot = new ChatSDK({
-        config: {
+        config: config ?? {
           navbar: {
             title: '智能助理'
           },
@@ -63,7 +68,7 @@ axios.post('/access/customer/register', userInfo)
               content: {
                 text: '智能助理为您服务，请问有什么可以帮您？'
               }
-            }
+            },
           ],
           loadMoreText: '点击加载更多',
         },
@@ -121,13 +126,10 @@ axios.post('/access/customer/register', userInfo)
                         type: 'image',
                         content: {
                           picUrl: {
-                            contentType: 'IMAGE',
-                            photoContent: {
-                              mediaId: res[0],
-                              filename: file.name,
-                              picSize: file.picSize,
-                              type: file.type,
-                            },
+                            mediaId: res.data[0],
+                            filename: file.name,
+                            picSize: file.size,
+                            type: file.type,
                           },
                         },
                         quiet: true // 不展示
@@ -148,7 +150,6 @@ axios.post('/access/customer/register', userInfo)
            * @return {array}
            */
           parseResponse: function (res, requestType) {
-            debugger;
             // 根据 requestType 处理数据
             if (requestType === 'history' && res) {
               lastMsgId = res.lastId;
@@ -184,7 +185,7 @@ axios.post('/access/customer/register', userInfo)
 
           function showQueue(queue) {
             // 展示排队消息
-            if (queue) {
+            if (queue || queue === 0) {
               // 如果界面上已经有排队消息则更新
               if (queueMsgId) {
                 ctx.updateMessage(queueMsgId, {
@@ -208,7 +209,11 @@ axios.post('/access/customer/register', userInfo)
           }
 
           socket.on("connect", () => {
-            let info
+            let info = {
+              organizationId: data.organizationId,
+              userId: data.userId,
+              customerConfig: userInfo,
+            }
             if (interaction == 1) {
               // 客服会话
               ctx.appendMessage({
@@ -217,17 +222,10 @@ axios.post('/access/customer/register', userInfo)
                   code: 'agent_join'
                 }
               })
-              info = {
-                organizationId: data.organizationId,
+              info = Object.assign(info, {
                 conversationId: data.id,
                 staffId: data.staffId,
-                userId: data.userId,
-              }
-            } else {
-              info = {
-                organizationId: data.organizationId,
-                userId: data.userId,
-              }
+              });
             }
 
             const request = getRequest(info)
@@ -236,6 +234,15 @@ axios.post('/access/customer/register', userInfo)
               queue = conversationView.queue;
               showQueue(queue);
               staffId = conversationView.staffId;
+              if (staffId) {
+                const sysMsg = {
+                  type: 'system',
+                  content: {
+                    text: '人工客服 ' + (conversationView.nickName ?? nickName) + ' 为您服务',
+                  },
+                }
+                ctx.appendMessage(sysMsg);
+              }
             });
           })
 
@@ -280,12 +287,31 @@ axios.post('/access/customer/register', userInfo)
               }
               case 'SYS': {
                 const msg = JSON.parse(content.textContent.text)
-                showQueue(msg.queue);
-                if (msg.staffId) {
-                  staffId = msg.staffId
-                  ctx.deleteMessage(queueMsgId);
-                  // TODO: 获取 客服信息
+                switch (content.sysCode) {
+                  case 0: {
+                    // 更新列队 
+                    showQueue(msg.queue);
+                  } 
+                  case 1: {
+                    // 分配客服
+                    if (msg.staffId) {
+                      staffId = msg.staffId
+                      ctx.deleteMessage(queueMsgId);
+                      nickName = msg.nickName
+                      const sysMsg = {
+                        type: 'system',
+                        content: {
+                          text: '人工客服 ' + nickName + ' 为您服务',
+                        },
+                      }
+                      ctx.appendMessage(sysMsg);
+                    }
+                  }
+                  default: {
+
+                  }
                 }
+                
               }
             }
 
@@ -310,9 +336,9 @@ axios.post('/access/customer/register', userInfo)
           return {
             // 把用户的信息发给后端
             send(msg) {
-              // switch msg.content.type
-              const content;
-              switch (content.contentType) {
+              // switch msg.type
+              let content;
+              switch (msg.type) {
                 case 'text': {
                   content = {
                     contentType: 'TEXT',
