@@ -80,7 +80,8 @@ app.get('/chat', (req, res) => {
         }
     
         // 设置生成的 uid cookie 最后一次访问的一周内有效
-        res.cookie('uid', userInfo.uid, { expires: new Date(Date.now() + 7 * 24 * 3600 * 1000), httpOnly: true });
+        res.cookie('uid', userInfo.uid, { expires: 
+            new Date(Date.now() + 7 * 24 * 3600 * 1000), httpOnly: true });
         res.render('chat', { userInfo: userInfo });
     } else {
         res.status(404).send('Not found');
