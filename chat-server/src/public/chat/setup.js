@@ -18,8 +18,8 @@ function generateResponse(header, body, code = 200) {
   }
 }
 
-
 let ctx
+let bot
 
 // step 1: 注册客户信息
 axios.post('/access/customer/register', userInfo)
@@ -40,7 +40,7 @@ axios.post('/access/customer/register', userInfo)
       config.messages = historyMsg;
 
       // step 3: 生成 chatsdk
-      const bot = new ChatSDK({
+      bot = new ChatSDK({
         config: config ?? {
           navbar: {
             title: '智能助理'

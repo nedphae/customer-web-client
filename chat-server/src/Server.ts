@@ -58,6 +58,7 @@ const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 
 app.get('/chat', (req, res) => {
+    res.removeHeader("X-Frame-Options");
     const query = req.query || req.body
     if (query) {
         let cookieUid = req.cookies ? req.cookies['uid'] : null;

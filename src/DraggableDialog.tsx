@@ -58,14 +58,14 @@ export default function DraggableDialog() {
         <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px' }} id="draggable-dialog-title">
           <DialogActions style={{ width: '100%', padding: '0px 0px' }}>
           <Button onClick={handleClose} color="primary">
-            Cancel
+            关闭
           </Button>
         </DialogActions>
         </DialogTitle>
         {/* 添加 chatui 组件 */}
         <DialogContent style={{height: '550px', width: '460px', padding: '0px 0px' }}>
           {/* 样式冲突 TODO: 使用 Shadow DOM iframe */}
-          <iframe src="https://www.qq.com" style={{ height: '550px', width: '460px', border: 'none', display: 'block'}}/>
+          <iframe src="http://localhost:8800/chat/?shuntId=c8abef94-0a9f-4ce9-97b1-679068f24f5d" style={{ height: '550px', width: '460px', border: 'none', display: 'block'}}/>
         </DialogContent>
       </Dialog>
     </div>
