@@ -8,7 +8,7 @@
     "url": "https://github.com/michal-wrzosek/react-component-lib",
     "type": "git"
   },
-  "license": "MIT",
+  "license": "Apache 2.0",
   "types": "dist/index.d.ts",
   "devDependencies": {
     "@types/react": "^16.9.55",

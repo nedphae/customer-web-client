@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@chatui/core": "^1.1.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
-    "react-scripts": "3.4.4",
-    "styled-components": "^5.2.1"
+    "react-scripts": "3.4.4"
   },
   "devDependencies": {
     "@types/jest": "^26.0.15",
