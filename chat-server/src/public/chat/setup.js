@@ -33,11 +33,15 @@ axios.post('/access/customer/register', userInfo)
       let nickName = data.nickName;
       let queue;
       let lastMsgId = '';
-      let lastUpdateFile;
       const config = JSON.parse(data.config);
       const historyMsg = data.historyMsg ?? [];
       historyMsg.push(...config.messages);
-      config.messages = historyMsg;
+      config.messages = historyMsg.map((msg) => {
+        if (msg.type === "image") {
+          msg.content.picUrl = '/oss/chat/img/' + msg.content.picUrl;
+        }
+        return msg
+      });
 
       // step 3: 生成 chatsdk
       bot = new ChatSDK({
@@ -154,6 +158,7 @@ axios.post('/access/customer/register', userInfo)
             if (requestType === 'history' && res) {
               lastMsgId = res.lastId;
               // 用 isv 消息解析器处理数据
+
               return res;
             }
 
