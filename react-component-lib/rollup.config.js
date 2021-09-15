@@ -13,7 +13,7 @@ export default [
     output: [
       { file: pkg.main, format: 'cjs' },
       { file: pkg.module, format: 'esm' },
-      { file: pkg.umd, format: 'umd', name: 'reactComponentLib' },
+      { file: pkg.umd, format: 'umd', name: 'AlimeComponentComment' },
       {
         file: 'example/src/reactComponentLib/index.js',
         format: 'es',

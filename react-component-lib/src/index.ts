@@ -1,3 +1,3 @@
-import Comment from './components/Comment/Comment';
+import Comment from './components/Comment/AlimeComponentComment';
 
-export { Comment };
+export default { default: Comment };

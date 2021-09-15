@@ -2,7 +2,19 @@ import React, { useState } from 'react';
 
 import { Card, CardTitle, CardContent, CardActions, Button, Input, toast } from '@chatui/core';
 
-interface CommentParam {
+interface UserInfo {
+  readonly organizationId: number;
+  readonly shuntId: number;
+  readonly userId: number;
+  readonly uid: string,
+}
+
+interface DataType {
+  url: string;
+  userInfo: UserInfo
+}
+
+interface CommentParam extends UserInfo {
   name: string;
   mobile: string;
   email: string;
@@ -81,19 +93,16 @@ type Ctx = {
 };
 
 interface CommentProp {
-  data: any;
+  data: DataType;
   ctx: Ctx;
   meta: any;
+  msgId: string;
 }
-// 代码分割，单独打包
-// import("./Comment").then(comment => {
-//     console.log(comment);
-//   });
-export default function Comment(commentProp: CommentProp) {
-  // console.info(commentProp);
-  // debugger;
-  const { data, ctx, meta } = commentProp;
+
+export default function AlimeComponentComment(commentProp: CommentProp) {
+  const { data, ctx, msgId } = commentProp;
   const [comment, setComment] = useState<CommentParam>({
+    ...data.userInfo,
     name: '',
     mobile: '',
     email: '',
@@ -106,13 +115,13 @@ export default function Comment(commentProp: CommentProp) {
   }
 
   function submit() {
-    if (comment && comment.name && comment.mobile && comment.message) {
+    if (comment && comment.name && (comment.mobile || comment.email) && comment.message) {
       ctx.util.fetchData({
-        url: '',
+        url: data.url,
         type: 'POST',
         data: comment,
       }).then(() => {
-        ctx.deleteMessage('leave_comment');
+        ctx.deleteMessage(msgId);
         ctx.appendMessage({
           id: 'leave_comment_result',
           type: 'system',
@@ -122,12 +131,12 @@ export default function Comment(commentProp: CommentProp) {
         });
       });
     } else {
-      toast.fail('姓名 手机 留言 不能为空');
+      toast.fail('姓名 留言 不能为空, 手机/邮箱 请至少填写一项');
     }
   }
 
   function cancle(){
-    ctx.deleteMessage('leave_comment');
+    ctx.deleteMessage(msgId);
   }
 
   return (
@@ -136,17 +145,17 @@ export default function Comment(commentProp: CommentProp) {
       <CardContent>
         <div>
           <h5>姓名 *</h5>
-          <Input value={comment.name} onChange={(val) => setValue({ name: val })} placeholder="请输入..." />
+          <Input value={comment.name} onChange={(val: string) => setValue({ name: val })} placeholder="请输入..." />
           <h5>手机 *</h5>
-          <Input value={comment.mobile} onChange={(val) => setValue({ mobile: val })} placeholder="请输入..." />
-          <h5>邮箱</h5>
-          <Input value={comment.email} onChange={(val) => setValue({ email: val })} placeholder="请输入..." />
+          <Input value={comment.mobile} onChange={(val: string) => setValue({ mobile: val })} placeholder="请输入..." />
+          <h5>邮箱 *</h5>
+          <Input value={comment.email} onChange={(val: string) => setValue({ email: val })} placeholder="请输入..." />
           <h5>留言 *</h5>
           <Input
             rows={3}
             maxLength={120}
             value={comment.message}
-            onChange={(val) => setValue({ message: val })}
+            onChange={(val: string) => setValue({ message: val })}
             placeholder="请输入..."
           />
         </div>

@@ -27,8 +27,11 @@ axios.post('/access/customer/register', userInfo)
     // step 2: 检查是否要直接转人工
     const data = response.data
     if (data && data.errorCode === undefined) {
+      const organizationId = data.organizationId;
       const userId = data.userId;
       const interaction = data.interaction;
+      const shuntId = data.shuntId;
+      const blockOnStaff = data.blockOnStaff;
       let staffId = data.staffId;
       let nickName = data.nickName;
       let queue;
@@ -42,9 +45,23 @@ axios.post('/access/customer/register', userInfo)
         }
         return msg
       });
+      config.quickReplies = [
+        {
+          name: '留言',
+          type: 'card',
+          card: {
+            code: 'comment',
+            data: {
+              url: '/access/customer/comment',
+              userInfo: { organizationId: organizationId, shuntId: shuntId, userId: userId, uid: userInfo.uid }
+            }
+          }
+        },
+      ].concat(config.quickReplies ?? [])
 
       // step 3: 生成 chatsdk
       bot = new ChatSDK({
+        // 实体配置仅供测试
         config: config ?? {
           navbar: {
             title: '智能助理'
@@ -75,6 +92,23 @@ axios.post('/access/customer/register', userInfo)
             },
           ],
           loadMoreText: '点击加载更多',
+          // 快捷短语
+          quickReplies: [
+            {
+              name: '留言',
+              type: 'card',
+              card: {
+                code: 'comment',
+                data: {
+                  url: '/access/customer/comment',
+                  userInfo: { organizationId: organizationId, shuntId: shuntId, userId: userId, uid: userInfo.uid }
+                }
+              }
+            },
+          ],
+        },
+        components: {
+          'comment': '/chat/component/index.umd.js',
         },
         requests: {
           history: function () {
@@ -158,7 +192,12 @@ axios.post('/access/customer/register', userInfo)
             if (requestType === 'history' && res) {
               lastMsgId = res.lastId;
               // 用 isv 消息解析器处理数据
-
+              res.list = res.list.map((msg) => {
+                if (msg.type === "image") {
+                  msg.content.picUrl = '/oss/chat/img/' + msg.content.picUrl;
+                }
+                return msg
+              });
               return res;
             }
 
@@ -296,7 +335,7 @@ axios.post('/access/customer/register', userInfo)
                   case 0: {
                     // 更新列队 
                     showQueue(msg.queue);
-                  } 
+                  }
                   case 1: {
                     // 分配客服
                     if (msg.staffId) {
@@ -316,7 +355,7 @@ axios.post('/access/customer/register', userInfo)
 
                   }
                 }
-                
+
               }
             }
 
@@ -400,13 +439,15 @@ axios.post('/access/customer/register', userInfo)
         })
 
       } else {
-        // 机器人会话
-        ctx.appendMessage({
-          type: 'cmd',
-          content: {
-            code: 'agent_entrance_display'
-          }
-        })
+        if (blockOnStaff == 0) {
+          // 机器人会话
+          ctx.appendMessage({
+            type: 'cmd',
+            content: {
+              code: 'agent_entrance_display'
+            }
+          })
+        }
       }
     }
   })
