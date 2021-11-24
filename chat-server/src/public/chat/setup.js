@@ -18,6 +18,13 @@ function generateResponse(header, body, code = 200) {
   }
 }
 
+function getTruePicUrl(picId) {
+  return '/oss/chat/img/' + picId
+}
+function getTrueFileUrl(fileId) {
+  return '/oss/chat/file/' + fileId
+}
+
 let ctx
 let bot
 
@@ -28,6 +35,7 @@ axios.post('/access/customer/register', userInfo)
     const data = response.data
     if (data && data.errorCode === undefined) {
       const organizationId = data.organizationId;
+      const convId = data.id;
       const userId = data.userId;
       const interaction = data.interaction;
       const shuntId = data.shuntId;
@@ -39,9 +47,10 @@ axios.post('/access/customer/register', userInfo)
       const config = JSON.parse(data.config);
       const historyMsg = data.historyMsg ?? [];
       historyMsg.push(...config.messages);
+
       config.messages = historyMsg.map((msg) => {
         if (msg.type === "image") {
-          msg.content.picUrl = '/oss/chat/img/' + msg.content.picUrl;
+          msg.content.picUrl = getTruePicUrl(msg.content.picUrl);
         }
         return msg
       });
@@ -57,7 +66,23 @@ axios.post('/access/customer/register', userInfo)
             }
           }
         },
+        {
+          name: '评价',
+          type: 'card',
+          card: {
+            code: 'evaluate',
+            data: {
+              url: '/access/customer/evaluate',
+              userInfo: { organizationId: organizationId, convId: convId }
+            }
+          }
+        },
       ].concat(config.quickReplies ?? [])
+
+      if (historyMsg[0]) {
+        // 获取到历史消息, 更新 lastMsgId
+        lastMsgId = historyMsg[0]._id;
+      }
 
       // step 3: 生成 chatsdk
       bot = new ChatSDK({
@@ -105,15 +130,27 @@ axios.post('/access/customer/register', userInfo)
                 }
               }
             },
+            {
+              name: '评价',
+              type: 'card',
+              card: {
+                code: 'evaluate',
+                data: {
+                  url: '/access/customer/evaluate',
+                  userInfo: { organizationId: organizationId, convId: convId }
+                }
+              }
+            },
           ],
         },
         components: {
-          'comment': '/chat/component/index.umd.js',
+          'comment': '/chat/component/comment.umd.js',
+          'evaluate': '/chat/component/evaluate.umd.js',
         },
         requests: {
           history: function () {
             return {
-              url: '/access/customer/message/history?userId=' + userId + '&lastSeqId=' + lastMsgId + '&pageSize=20',
+              url: '/access/customer/message/history?userId=' + userId + '&lastSeqId=' + lastMsgId + '&pageSize=50',
             };
           },
           send: function (msg) {
@@ -122,8 +159,8 @@ axios.post('/access/customer/register', userInfo)
               return {
                 url: '/bot/qa',
                 data: {
+                  c: convId,
                   // 用户id
-                  c: data.id,
                   u: userId,
                   b: staffId,
                   q: JSON.stringify(msg),
@@ -154,7 +191,7 @@ axios.post('/access/customer/register', userInfo)
                     var formData = new FormData();
                     formData.append("file", file);
                     // 上传图片
-                    axios.post('/oss/chat/img', formData, {
+                    axios.post('/oss/chat/img/' + organizationId, formData, {
                       headers: {
                         'Content-Type': 'multipart/form-data'
                       }
@@ -194,7 +231,7 @@ axios.post('/access/customer/register', userInfo)
               // 用 isv 消息解析器处理数据
               res.list = res.list.map((msg) => {
                 if (msg.type === "image") {
-                  msg.content.picUrl = '/oss/chat/img/' + msg.content.picUrl;
+                  msg.content.picUrl = getTruePicUrl(msg.content.picUrl);
                 }
                 return msg
               });
@@ -267,7 +304,7 @@ axios.post('/access/customer/register', userInfo)
                 }
               })
               info = Object.assign(info, {
-                conversationId: data.id,
+                conversationId: convId,
                 staffId: data.staffId,
               });
             }
@@ -307,10 +344,6 @@ axios.post('/access/customer/register', userInfo)
                   content: {
                     text: content.textContent.text,
                   },
-                  user: {
-                    avatar:
-                      'https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg',
-                  },
                 }
                 break;
               }
@@ -320,11 +353,30 @@ axios.post('/access/customer/register', userInfo)
                   _id: msgId,
                   type: 'image',
                   content: {
-                    picUrl: '/oss/chat/img/' + content.photoContent.mediaId,
+                    picUrl: getTruePicUrl(content.photoContent.mediaId),
                   },
-                  user: {
-                    avatar:
-                      'https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg',
+                }
+                break;
+              }
+              case 'FILE': {
+                chatUIMessage = {
+                  _id: msgId,
+                  type: 'card',
+                  content: {
+                    code: 'promotion',
+                    data: {
+                      array: [
+                        {
+                          image: "https://g.alicdn.com/DingTalkWeb/web/3.8.10/assets/webpack-img/" + content.attachments.filename.split('.').pop() + ".png",
+                          action: "openWindow",
+                          title: content.attachments.filename,
+                          text: "点击下载文件",
+                          params: {
+                            url: getTrueFileUrl(content.attachments.mediaId),
+                          },
+                        }
+                      ]
+                    }
                   },
                 }
                 break;
@@ -351,12 +403,39 @@ axios.post('/access/customer/register', userInfo)
                       ctx.appendMessage(sysMsg);
                     }
                   }
+                  case 7: {
+                    // 转接客服
+                    if (msg.staffId) {
+                      staffId = msg.staffId
+                      nickName = msg.nickName
+                      const sysMsg = {
+                        type: 'system',
+                        content: {
+                          text: '为您转接人工客服：' + nickName,
+                        },
+                      }
+                      ctx.appendMessage(sysMsg);
+                    }
+                  }
                   default: {
 
                   }
                 }
 
               }
+            }
+
+            if (message.creatorType == 2) {
+              chatUIMessage = Object.assign({
+                position: 'right',
+              }, chatUIMessage)
+            } else if (message.creatorType == 1) {
+              chatUIMessage = Object.assign({
+                position: 'left', user: {
+                  avatar:
+                    'https://gw.alicdn.com/tfs/TB1U7FBiAT2gK0jSZPcXXcKkpXa-108-108.jpg',
+                },
+              }, chatUIMessage)
             }
 
             if (chatUIMessage) {
@@ -429,6 +508,17 @@ axios.post('/access/customer/register', userInfo)
       bot.run();
 
       ctx = bot.getCtx();
+
+      if (config.connectIds) {
+        // 获取 connectIds 关联的机器人消息
+        axios.post('/bot/topic/ids', config.connectIds.join('\n')).then((response) => {
+          const data = response.data
+          if (data && data.errorCode === undefined) {
+            ctx.appendMessage(data);
+          }
+        })
+      }
+
       if (interaction == 1) {
         // 客服会话
         ctx.appendMessage({

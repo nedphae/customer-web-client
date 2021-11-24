@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 // import './App.css';
-import DraggableDialog from './DraggableDialog';
+import DraggableDialog, { AccessParamProp } from './DraggableDialog';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -26,13 +26,14 @@ const useStyles = makeStyles({
   },
 });
 
-function App() {
+function App(accessParamProp: AccessParamProp) {
+  const { accessParam, customerHost } = accessParamProp
   const classes = useStyles();
   return (
     <div className={classes.App}> { /* <div className="App"> */ }
       <header className={classes.AppHeader}> { /** <header className="App-header"> */}
         {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <DraggableDialog />
+        <DraggableDialog accessParam={accessParam} customerHost={customerHost} />
       </header>
     </div>
   );

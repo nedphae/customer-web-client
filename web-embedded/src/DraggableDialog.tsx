@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import IconButton from '@material-ui/core/IconButton';
 import Button from '@material-ui/core/Button';
@@ -19,9 +19,53 @@ function PaperComponent(props: PaperProps) {
   );
 }
 
-export default function DraggableDialog() {
-  const [open, setOpen] = React.useState(false);
-  const [hidden, setHidden] = React.useState(true);
+export interface AccessParam extends UrlParams {
+  shuntId: string;
+  uid: string;
+  staffId: number;
+  groupid: number;
+  robotShuntSwitch: number;
+  name: string;
+  email: string;
+  mobile: string;
+  vipLevel: number;
+  title?: string;
+  referrer?: string;
+}
+
+export interface AccessParamProp {
+  accessParam: AccessParam
+  customerHost?: string;
+}
+
+interface UrlParams {
+  [key: string]: string | number | boolean | undefined;
+}
+
+const addParam = (uri: string, params: UrlParams) => {
+  let str = '';
+  Object.keys(params).forEach((key) => {
+    const value = params[key]
+    if (value) {
+      if (str !== '') {
+        str += '&';
+      }
+      str += `${key}=${encodeURIComponent(value)}`;
+    }
+  });
+  return `${uri}?${str}`;
+};
+
+export default function DraggableDialog(accessParamProp: AccessParamProp) {
+  const { accessParam, customerHost } = accessParamProp
+  const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(true);
+
+  const url = addParam(
+    // 修改为服务地址
+    customerHost ?? 'http://localhost:8800/chat/',
+    accessParam
+  );
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -64,8 +108,8 @@ export default function DraggableDialog() {
         </DialogTitle>
         {/* 添加 chatui 组件 */}
         <DialogContent style={{height: '550px', width: '460px', padding: '0px 0px' }}>
-          {/* 样式冲突 TODO: 使用 Shadow DOM iframe */}
-          <iframe src="http://localhost:8800/chat/?shuntId=c8abef94-0a9f-4ce9-97b1-679068f24f5d" style={{ height: '550px', width: '460px', border: 'none', display: 'block'}}/>
+          {/* ChatUI 聊天窗口 */}
+          <iframe src={url} style={{ height: '550px', width: '460px', border: 'none', display: 'block'}}/>
         </DialogContent>
       </Dialog>
     </div>

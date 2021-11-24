@@ -3,14 +3,15 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { AccessParam } from './DraggableDialog';
 
 const myDiv = document.createElement("div");
 document.body.appendChild(myDiv)
 
-export const initChat = () => {
+export const initChat = (accessParam: AccessParam, customerHost: string | undefined = undefined) => {
   ReactDOM.render(
     // <React.StrictMode>
-      <App />,
+      <App accessParam={accessParam} customerHost={customerHost} />,
     // </React.StrictMode>,
     myDiv // document.getElementById('root')
   );
