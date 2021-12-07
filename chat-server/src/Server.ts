@@ -112,7 +112,10 @@ app.get('/admin/kibana/initByOrg', SECURE, jwtScope('admin'), (req, res) => {
         "elasticsearch": {
             "cluster": [],
             "indices": [
-                { "names": [`message-conv-${organizationId}`, `staff-attendance-${organizationId}`], "privileges": ["read"] }
+                {
+                    "names": [`message_conv-${organizationId}`, `staff_attendance-${organizationId}`, `conversation_statistics-${organizationId}`],
+                    "privileges": ["read"]
+                }
             ],
             "run_as": []
         },
