@@ -30,7 +30,7 @@
             ctx.util
                 .fetchData({
                 url: data.url,
-                type: 'PUT',
+                type: 'POST',
                 data: evaluate,
             })
                 .then(() => {

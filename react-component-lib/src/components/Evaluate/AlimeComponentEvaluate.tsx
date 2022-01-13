@@ -125,7 +125,7 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
     ctx.util
       .fetchData({
         url: data.url,
-        type: 'PUT',
+        type: 'POST',
         data: evaluate,
       })
       .then(() => {

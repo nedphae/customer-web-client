@@ -28,6 +28,8 @@ function getTrueFileUrl(fileId) {
 let ctx
 let bot
 
+let socket
+
 // step 1: 注册客户信息
 axios.post('/access/customer/register', userInfo)
   .then((response) => {
@@ -46,7 +48,10 @@ axios.post('/access/customer/register', userInfo)
       let lastMsgId = '';
       const config = JSON.parse(data.config);
       const historyMsg = data.historyMsg ?? [];
-      historyMsg.push(...config.messages);
+      if (data.commentView !== 'true') {
+        // 检查是否是查看留言的链接
+        historyMsg.push(...config.messages);
+      }
 
       config.messages = historyMsg.map((msg) => {
         if (msg.type === "image") {
@@ -148,6 +153,28 @@ axios.post('/access/customer/register', userInfo)
           'evaluate': '/chat/component/evaluate.umd.js',
         },
         requests: {
+          autoComplete: (data) => {
+            if (socket) {
+              let content = {
+                contentType: 'SYS',
+                sysCode: 'USER_TYPING',
+                serviceContent: data.text,
+              }
+
+              const request = getRequest(
+                // message
+                {
+                  uuid: uuidv4(),
+                  to: staffId,
+                  from: userId,
+                  type: 1,
+                  creatorType: 0,
+                  content,
+                })
+              socket.emit('msg/send', request)
+            }
+            return undefined;
+          },
           history: function () {
             return {
               url: '/access/customer/message/history?userId=' + userId + '&lastSeqId=' + lastMsgId + '&pageSize=50',
@@ -253,7 +280,7 @@ axios.post('/access/customer/register', userInfo)
         // 转人工配置
         makeSocket({ ctx }) {
           // 连接 ws (socket.io)
-          const socket = io("/im/customer",
+          socket = io("/im/customer",
             {
               query: {
                 token: 'customer',
@@ -348,7 +375,6 @@ axios.post('/access/customer/register', userInfo)
                 break;
               }
               case 'IMAGE': {
-                //TODO
                 chatUIMessage = {
                   _id: msgId,
                   type: 'image',
@@ -382,13 +408,16 @@ axios.post('/access/customer/register', userInfo)
                 break;
               }
               case 'SYS': {
-                const msg = JSON.parse(content.textContent.text)
+                let msg = undefined;
+                if (content.serviceContent) {
+                  msg = JSON.parse(content.serviceContent)
+                }
                 switch (content.sysCode) {
-                  case 0: {
+                  case 'UPDATE_QUEUE': {
                     // 更新列队 
                     showQueue(msg.queue);
                   }
-                  case 1: {
+                  case 'ASSIGN': {
                     // 分配客服
                     if (msg.staffId) {
                       staffId = msg.staffId
@@ -403,7 +432,7 @@ axios.post('/access/customer/register', userInfo)
                       ctx.appendMessage(sysMsg);
                     }
                   }
-                  case 7: {
+                  case 'TRANSFER': {
                     // 转接客服
                     if (msg.staffId) {
                       staffId = msg.staffId
@@ -416,6 +445,21 @@ axios.post('/access/customer/register', userInfo)
                       }
                       ctx.appendMessage(sysMsg);
                     }
+                  }
+                  case 'EVALUATION_INVITED': {
+                    // ctx.deleteMessage('evaluate_from');
+                    // 客服邀请评价
+                    ctx.appendMessage({
+                      _id: 'evaluate_from',
+                      type: 'card',
+                      content: {
+                        code: 'evaluate', // 卡片code
+                        data: { // 卡片数据
+                          url: '/access/customer/evaluate',
+                          userInfo: { organizationId: organizationId, convId: convId }
+                        }
+                      }
+                    })
                   }
                   default: {
 
@@ -451,7 +495,7 @@ axios.post('/access/customer/register', userInfo)
             ctx.appendMessage({
               type: 'system',
               content: {
-                text: '连接断开 人工客服已退出服务',
+                text: '连接超时断开 人工客服已退出服务',
               },
             });
           });
@@ -482,7 +526,7 @@ axios.post('/access/customer/register', userInfo)
               const request = getRequest(
                 // message
                 {
-                  uuid: uuidv4().substr(0, 8),
+                  uuid: uuidv4(),
                   to: staffId,
                   type: 1,
                   creatorType: 2,
@@ -506,7 +550,6 @@ axios.post('/access/customer/register', userInfo)
       });
 
       bot.run();
-
       ctx = bot.getCtx();
 
       if (config.connectIds) {
