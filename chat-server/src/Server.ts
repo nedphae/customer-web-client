@@ -108,9 +108,8 @@ const kibanaUrl = "http://192.168.50.110:5601";
 /**
  * 根据 机构ID 初始化机构角色、机构用户
  * 调用 API 创建 机构角色、机构用户用于获取 Kibana 统计报表
- * TODO: 先使用手动建立
  */
-app.post("/admin/kibana/org/init", SECURE, jwtScope("admin"), async (req, res) => {
+app.post("/chat/admin/kibana/org/init", SECURE, jwtScope("admin"), async (req, res) => {
     const { orgId } = req.query;
     const organizationId = orgId as string;
     const roleName = `cs_viewer_${organizationId}`;
@@ -216,6 +215,10 @@ app.post("/admin/kibana/org/init", SECURE, jwtScope("admin"), async (req, res) =
     }
 
 });
+
+app.get("/chat/signup", (_req, res) => {
+    res.sendFile("signup.html", { root: viewsDir });
+})
 
 app.get("*", (req: Request, res: Response) => {
     res.sendFile("index.html", { root: viewsDir });

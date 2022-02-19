@@ -19,10 +19,10 @@ function generateResponse(header, body, code = 200) {
 }
 
 function getTruePicUrl(picId) {
-  return '/oss/chat/img/' + picId
+  return '/s3/chat/img/' + picId
 }
 function getTrueFileUrl(fileId) {
-  return '/oss/chat/file/' + fileId
+  return '/s3/chat/file/' + fileId
 }
 
 let ctx
@@ -218,7 +218,7 @@ axios.post('/access/customer/register', userInfo)
                     var formData = new FormData();
                     formData.append("file", file);
                     // 上传图片
-                    axios.post('/oss/chat/img/' + organizationId, formData, {
+                    axios.post('/s3/chat/img/' + organizationId, formData, {
                       headers: {
                         'Content-Type': 'multipart/form-data'
                       }
