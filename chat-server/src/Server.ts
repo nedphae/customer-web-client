@@ -71,7 +71,7 @@ app.get('/health', (_req, res) => {
 app.get("/chat", (req, res) => {
     res.removeHeader("X-Frame-Options");
     const query = req.query || req.body;
-    if (query) {
+    if (query && query.sc) {
         let cookieUid = req.cookies ? req.cookies["uid"] : null;
         cookieUid = cookieUid && cookieUid !== "" ? cookieUid : null;
         const defaultUid = uuidv4().substring(0, 8);
@@ -101,124 +101,6 @@ app.get("/chat", (req, res) => {
         res.status(404).send("Sorry, cant find that");
     }
 });
-
-const elasticsearchUrl = "http://192.168.50.104:9200";
-const kibanaUrl = "http://192.168.50.110:5601";
-
-/**
- * 根据 机构ID 初始化机构角色、机构用户
- * 调用 API 创建 机构角色、机构用户用于获取 Kibana 统计报表
- */
-app.post("/chat/admin/kibana/org/init", SECURE, jwtScope("admin"), async (req, res) => {
-    const { orgId } = req.query;
-    const organizationId = orgId as string;
-    const roleName = `cs_viewer_${organizationId}`;
-    const userName = `cs_viewer_${organizationId}`;
-    const password = uuidv4().substring(0, 10);
-    const createRoleParam = {
-        elasticsearch: {
-            cluster: [],
-            indices: [
-                {
-                    names: [
-                        `message_conv-${organizationId}`,
-                        `staff_attendance-${organizationId}`,
-                        `conversation_statistics-${organizationId}`,
-                    ],
-                    privileges: ["read"],
-                },
-            ],
-            run_as: [],
-        },
-        kibana: [
-            { spaces: ["default"], base: [], feature: { dashboard: ["read"] } },
-        ],
-    };
-
-    const createUserParam = {
-        password: `${password}`,
-        roles: [`${roleName}`],
-        metadata: {
-            intelligence: 7,
-        },
-    };
-
-    const authConfig: AxiosRequestConfig = {
-        auth: {
-            username: 'elastic',
-            password: 'coldyeah',
-        },
-        headers: {
-            'kbn-xsrf': true,
-        }
-    };
-
-    await axios.put(
-        `${kibanaUrl}/api/security/role/${roleName}`,
-        createRoleParam,
-        authConfig
-    );
-
-    await axios.post(
-        `${elasticsearchUrl}/_security/user/${userName}`,
-        createUserParam,
-        authConfig
-    );
-
-    // 读取 es 导出的配置
-    const { data: exportJson } = await axios.post<string>(
-        `${kibanaUrl}/api/saved_objects/_export`,
-        {
-            "objects": [
-                {
-                    "id": "b49fb5f0-525b-11ec-a3fb-7badbe8fcf22",
-                    "type": "dashboard"
-                }
-            ],
-            "includeReferencesDeep": true
-        },
-        authConfig
-    )
-
-    if (exportJson) {
-        const newNdjson = exportJson
-            .replace(/^.*"type":"tag".*$/mg, '') // 删除Tag
-            .replaceAll("message_conv", `message_conv-${organizationId}`)
-            .replaceAll("客服系统基础仪表盘", `客服系统仪表盘-${organizationId}`);
-        const blob = new Blob([newNdjson], {
-            type: "application/json",
-        });
-
-        const data = new FormData();
-        data.append("file", blob, "file.ndjson");
-        const result = await axios({
-            method: "post",
-            url: `${kibanaUrl}/api/saved_objects/_import?createNewCopies=true`,
-            data: data,
-            auth: authConfig.auth,
-        });
-        const newDashboardId: string = result.data.successResults
-            .filter((it: { type: string }) => it.type === "dashboard")
-            .map((it: { destinationId: string }) => it.destinationId)[0];
-
-        const dashboardUrl = `${kibanaUrl}/app/dashboards#/view/${newDashboardId}?embed=true&` +
-            `_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2C` +
-            `time%3A(from%3Anow%2Fd%2Cto%3Anow%2Fd))` +
-            `&show-query-input=true&show-time-filter=true`;
-
-        res.json({
-            organizationId: organizationId,
-            kibanaUsername: userName,
-            kibanaPassword: password,
-            kibanaUrl: dashboardUrl,
-        });
-    }
-
-});
-
-app.get("/chat/signup", (_req, res) => {
-    res.sendFile("signup.html", { root: viewsDir });
-})
 
 app.get("*", (req: Request, res: Response) => {
     res.sendFile("index.html", { root: viewsDir });
