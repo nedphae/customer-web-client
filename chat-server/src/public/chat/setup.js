@@ -49,6 +49,12 @@ axios.post('/access/customer/register', userInfo)
       const config = JSON.parse(data.config);
       const historyMsg = data.historyMsg ?? [];
       if (data.commentView !== 'true') {
+        historyMsg.push({
+          type: 'system',
+          content: {
+            text: '以上是历史消息'
+          }
+        });
         // 检查是否是查看留言的链接
         historyMsg.push(...config.messages);
       }
@@ -265,11 +271,17 @@ axios.post('/access/customer/register', userInfo)
               return res;
             }
 
-            if (requestType === 'send' && res.body) {
+            if (requestType === 'send' && res) {
               // 更新 用户 message ID
               if (lastMsgId == '') {
-                lastMsgId = res.body[0]._id
+                lastMsgId = res[0]._id
               }
+              res = res.map((msg) => {
+                if (msg.type === "image") {
+                  msg.content.picUrl = getTruePicUrl(msg.content.picUrl);
+                }
+                return msg
+              });
             }
 
             // 不需要处理的数据直接返回
@@ -552,7 +564,8 @@ axios.post('/access/customer/register', userInfo)
       bot.run();
       ctx = bot.getCtx();
 
-      if (config.connectIds) {
+      debugger
+      if (config.connectIds && config.connectIds.length > 0) {
         // 获取 connectIds 关联的机器人消息
         axios.post('/bot/topic/ids', config.connectIds.join('\n')).then((response) => {
           const data = response.data

@@ -76,7 +76,7 @@ app.get("/chat", (req, res) => {
         cookieUid = cookieUid && cookieUid !== "" ? cookieUid : null;
         const defaultUid = uuidv4().substring(0, 8);
         const userInfo = {
-            shuntId: query.si,
+            shuntCode: query.sc,
             // 如果没有传递 uid 就自动生成一个
             uid: query.uid ?? cookieUid ?? `guest_${defaultUid}`,
             staffId: query.staffId,
