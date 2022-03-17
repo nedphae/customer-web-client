@@ -1,43 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
 
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+<head>
+    <meta charset="UTF-8">
+    <link rel="shortcut icon" href="/chat/img/logo.png" type="image/png">
+    <title>注册页面</title>
+    <style>
+        /* body {
+            background: url("./img/register_bg.png");
+        } */
+
+        .rg_layout {
+            width: 900px;
+            height: 1500px;
+            border: 8px solid #EEEEEE;
+            background-color: white;
+            margin: 60px auto 0;
+        }
+
+        .rg_left {
+            float: left;
+            margin: 15px;
+        }
+
+        .rg_center {
+            float: left;
+        }
+
+        .rg_right {
+            float: right;
+            margin: 15px;
+        }
+
+        .rg_left>p:first-child {
+            color: #FFD026;
+            font-size: 20px;
+        }
+
+        .rg_left>p:last-child {
+            color: #A6A6A6;
+            font-size: 20px;
+        }
+
+        .rg_right>p:first-child {
+            font-size: 15px;
+
+        }
+
+        .rg_right p a {
+            color: pink;
+        }
+
+        .td_left {
+            width: 100px;
+            height: 45px;
+            text-align: right;
+        }
+
+        .td_right {
+            padding-left: 50px;
+        }
+
+        #username,
+        #password,
+        #email,
+        #name,
+        #address,
+        #homepage,
+        #phone,
+        #birthday,
+        #verifyCode {
+            width: 251px;
+            height: 32px;
+            border: 1px solid #A6A6A6;
+            border-radius: 5px;
+            padding-left: 10px;
+        }
+
+        #verifyCode {
+            width: 110px;
+        }
+
+        #img_check {
+            height: 32px;
+            vertical-align: middle;
+        }
+
+        #btn_sub {
+            width: 150px;
+            height: 40px;
+            background-color: #FFD026;
+            border: 1px solid #FFD026;
+        }
+
+        .error {
+            color: red;
+        }
+
+        #td_sub {
+            padding-left: 150px;
+        }
+    </style>
+    <script>
+        window.onload = function () {
+            document.getElementById("form").onsubmit = function () {
+                return signupOrg(this);
+            };
+        };
+
+        function checkVerifyCode(verifyCode) {
+            var s_verifyCode = document.getElementById("s_verifyCode");
+            const result = verifyCode.length == 6;
+            if (!result) {
+                // 手机号码错误
+                s_verifyCode.innerHTML = "请输入6位验证码";
+            } else {
+                s_verifyCode.innerHTML = "";
+            }
+            return result;
+        }
+
+        function checkPhone(phone) {
+            var s_phone = document.getElementById("s_phone");
+            const reg = /^1(3\d|4[5-9]|5[0-35-9]|6[2567]|7[0-8]|8\d|9[0-35-9])\d{8}$/;
+            const result = reg.test(phone);
+            if (!result) {
+                // 手机号码错误
+                if (phone === "") {
+                    s_phone.innerHTML = "请输入手机号";
+                } else {
+                    s_phone.innerHTML = "请检查手机号";
+                }
+            } else {
+                s_phone.innerHTML = "";
+            }
+            return result;
+        }
+
+        function getVerificationCode() {
+            var btnVeri = document.getElementById("btn_veri");
+            var phone = document.getElementById("phone").value;
+            if (checkPhone(phone)) {
+                s_verifyCode.innerHTML = "";
+                let i = 59;
+                const nIntervId = setInterval(() => {
+                    if (i === 0) {
+                        btnVeri.value = "获取验证码";
+                        btnVeri.disabled = false;
+                        clearInterval(nIntervId);
+                    } else {
+                        btnVeri.disabled = true;
+                        btnVeri.value = i;
+                        i--;
+                    }
+                }, 1000);
+
+
+                fetch('/organization/verification-code/send?phone=' + phone, {
+                    method: 'POST',
+                    cache: 'no-cache',
+                })
+            }
+        }
+
+        function signupOrg(form) {
+            const formData = new FormData(form);
+            const jsonBody = Object.fromEntries(formData.entries());
+            if (checkPhone(formData.get("phone")) && checkVerifyCode(formData.get("verifyCode"))) {
+                fetch('/organization/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: JSON.stringify(jsonBody),
+                    cache: 'no-cache',
+                })
+                    .then(response => {
+                        window.tempResponse = response;
+                        const status = response.status;
+                        const btnVeri = document.getElementById("reg_success");
+                        if (status === 200) {
+                            response.json()
+                                .then(data => {
+                                    btnVeri.innerHTML = "注册成功！<br>机构Id为：" + data.id + "，初始用户名为 admin <br>密码为您的手机号，请<a href='https://xbcs.top/download/'>下载客户端</a>登录";
+                                })
+                            // window.location.href = "/organization/login";
+                        } else {
+                            switch (status) {
+                                case 403:
+                                    btnVeri.innerHTML = "验证码错误，请重新输入";
+                                    break;
+                                case 409:
+                                    btnVeri.innerHTML = "号码已经被注册";
+                                    break;
+                                case 500:
+                                    btnVeri.innerHTML = "服务器错误";
+                                    break;
+                                default:
+                                    response.json()
+                                        .then(data => {
+                                            if (data.error) {
+                                                btnVeri.innerHTML = data.error;
+                                            } else {
+                                                btnVeri.innerHTML = "未知错误";
+                                            }
+                                        })
+                                    break;
+                            }
+                        }
+                    })
+            }
+            return false;
+        }
+
+    </script>
+</head>
+
+<body>
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+    <div class="rg_layout">
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+        <div class="rg_left">
+            <img src="/chat/img/logo.png" />
+            <p>小白客服 <br> 新机构注册</p>
+            <p>ORGANIZATION <br> REGISTER</p>
+        </div>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+        <div class="rg_center">
+            <div class="rg_form">
+                <form id="form" method="post">
+                    <table>
+                        <tr>
+                            <td class="td_left"><label for="phone">手机号 *</label></td>
+                            <td class="td_right">
+                                <input type="text" name="phone" id="phone" placeholder="请输入手机号">
+                                <span id="s_phone" class="error"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_left"><label for="verifyCode">验证码 *</label></td>
+                            <td class="td_right">
+                                <input type="text" name="verifyCode" id="verifyCode" placeholder="请输入验证码">
+                                <input type="button" id="btn_veri" value="获取验证码" onclick="getVerificationCode()">
+                                <span id="s_verifyCode" class="error"></span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_left"><label for="email">e-mail</label></td>
+                            <td class="td_right"><input type="email" name="email" id="email" placeholder="请输入邮箱"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_left"><label for="name">机构名称</label></td>
+                            <td class="td_right"><input type="text" name="name" id="name" placeholder="请输入机构名称"></td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_left"><label for="address">机构地址</label></td>
+                            <td class="td_right"><input type="text" name="address" id="address" placeholder="请输入机构地址">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="td_left"><label for="homepage">机构主页</label></td>
+                            <td class="td_right"><input type="text" name="homepage" id="homepage" placeholder="请输入机构主页">
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2" id="td_sub"><input type="submit" id="btn_sub" value="注册"></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" id="td_sub"><span id="reg_success" class="error"></span></td>
+                        </tr>
+                    </table>
+
+                </form>
+            </div>
+        </div>
+
+        <div class="rg_right">
+            <p>注册即送15天免费试用</p>
+            <a href="https://xbcs.top">了解详情</a>
+        </div>
+
+    </div>
+
+</body>
+
 </html>

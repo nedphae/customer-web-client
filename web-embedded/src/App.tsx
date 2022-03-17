@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 // import './App.css';
 import DraggableDialog, { AccessParamProp } from './DraggableDialog';
@@ -29,13 +29,19 @@ const useStyles = makeStyles({
 function App(accessParamProp: AccessParamProp) {
   const { accessParam, customerHost } = accessParamProp
   const classes = useStyles();
+
+  
+
   return (
-    <div className={classes.App}> { /* <div className="App"> */ }
-      <header className={classes.AppHeader}> { /** <header className="App-header"> */}
-        {/* <img src={logo} className="App-logo" alt="logo" /> */}
-        <DraggableDialog accessParam={accessParam} customerHost={customerHost} />
-      </header>
-    </div>
+    <>
+      <div className={classes.App}> { /* <div className="App"> */}
+        <div className={classes.AppHeader}> { /** <header className="App-header"> */}
+          {/* <img src={logo} className="App-logo" alt="logo" /> */}
+          <DraggableDialog accessParam={accessParam} customerHost={customerHost} />
+        </div>
+      </div>
+    </>
+
   );
 }
 
