@@ -7,16 +7,16 @@ import { makeStyles } from '@material-ui/core/styles';
 const useStyles = makeStyles({
   App: {
     position: 'fixed',
-    height: '80px',
-    width: '80px',
+    height: '60px',
+    width: '60px',
     right: '10px',
     textAlign: 'center',
-    bottom: '40%',
+    bottom: '30%',
     zIndex: 9999,
   },
   AppHeader: {
-    height: '80px',
-    width: '80px',
+    height: '60px',
+    width: '60px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',

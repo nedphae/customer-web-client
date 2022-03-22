@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 
+import { v4 as uuidv4 } from 'uuid';
+import Cookies from 'js-cookie'
 import {
   createStyles,
   makeStyles,
@@ -9,19 +11,19 @@ import Button from '@material-ui/core/Button';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import Paper from '@material-ui/core/Paper';
+import Paper, { PaperProps } from '@material-ui/core/Paper';
 import Draggable, { DraggableBounds, DraggableData, DraggableEvent } from 'react-draggable';
 import IconButton from '@material-ui/core/IconButton';
 import ForumIcon from '@material-ui/icons/Forum';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import Typography from '@material-ui/core/Typography';
 import { Popper } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    popper: {
-      // marginTop: theme.spacing(8),
-      display: 'block',
-      // visibility: 'visible',
+    customHoverFocus: {
+      backgroundColor: "lightblue",
+      "&:hover, &.Mui-focusVisible": { backgroundColor: "yellow" }
     },
   }));
 
@@ -65,6 +67,31 @@ const addParam = (uri: string, params: UrlParams) => {
   return `${uri}?${str}`;
 };
 
+function PaperComponent(props: PaperProps) {
+  return (
+    <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
+      <Paper {...props} />
+    </Draggable>
+  );
+}
+
+interface DraggableOrNotProps extends PaperProps {
+  bounds: DraggableBounds;
+  handle: string;
+  cancel: string
+}
+
+function DraggableOrNot(props: DraggableOrNotProps) {
+  const { bounds, handle, cancel, ...other } = props;
+  const draggable = 460 < document.documentElement.clientWidth;
+  return (<>
+    {draggable ? (<Draggable bounds={bounds} handle={handle} cancel={cancel} >
+      <Paper {...other} />
+    </Draggable>) : (
+      <Paper {...other} />)}
+  </>)
+}
+
 export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   const classes = useStyles();
   const { accessParam, customerHost } = accessParamProp
@@ -78,13 +105,25 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(true);
 
-  const url = addParam(
-    // 修改为服务地址
-    customerHost ?? 'http://localhost:8080/chat/',
-    accessParam
-  );
+  const url = useMemo(() => {
+    if (!accessParam.uid) {
+      // 无 uid 生成一个，防止客服系统生成的cookie有跨域问题
+      let uid = Cookies.get('xiaobai_uid')
+      if (!uid) {
+        uid = uuidv4().substring(0, 8);
+      }
+      accessParam.uid = uid;
+    }
+    Cookies.set('xiaobai_uid', accessParam.uid, { expires: 7 })
+    return addParam(
+      // 修改为服务地址
+      customerHost ?? 'https://im.xbcs.top/chat/',
+      accessParam
+    );
+  }, []);
 
-  const handleClickOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
+
+  const handleClickOpen = () => {
     setOpen(true);
     setHidden(false);
   };
@@ -95,35 +134,37 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
     }
   };
 
+  const width = `${Math.min(460, document.documentElement.clientWidth)}px`;
+
   // 使用 css in js 替换 
   return (
     <>
-      <IconButton color="primary" onClick={handleClickOpen} aria-label="add to shopping cart">
-        <ForumIcon />
-        <Typography variant="button" display="block" gutterBottom>
-          联系客服
-        </Typography>
-      </IconButton>
-      <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 99999 }}>
-        <Draggable bounds={bounds} handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'} >
-          <Paper>
-            {/* TODO 使用 CSS-in-JS */}
-            <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px' }} id="draggable-dialog-title">
-              <DialogActions style={{ width: '100%', padding: '0px 0px' }}>
-                <Button onClick={handleClose} color="primary">
-                  关闭
-                </Button>
-              </DialogActions>
-            </DialogTitle>
-            {/* 添加 chatui 组件 */}
-            <DialogContent style={{ height: '550px', width: '460px', padding: '0px 0px' }}>
-              {/* ChatUI 聊天窗口 */}
-              <iframe src={url} style={{ height: '550px', width: '460px', border: 'none', display: 'block' }} />
-            </DialogContent>
-          </Paper>
-        </Draggable>
+      <Button
+        onClick={handleClickOpen}
+        variant="contained"
+        startIcon={<ForumIcon />}
+        size="small"
+      >
+        客服
+      </Button>
+      <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000 }}>
+        <DraggableOrNot bounds={bounds} handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'} >
+          {/* TODO 使用 CSS-in-JS */}
+          <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px', zIndex: 100001 }} id="draggable-dialog-title">
+            <DialogActions>
+              <IconButton onClick={handleClose} aria-label="delete" size="small">
+                <ArrowDownwardIcon fontSize="inherit" />
+              </IconButton>
+            </DialogActions>
+          </DialogTitle>
+          {/* 添加 chatui 组件 */}
+          <DialogContent style={{ height: '550px', width: width, padding: '0px 0px' }}>
+            {/* ChatUI 聊天窗口 */}
+            <iframe src={url} style={{ height: '550px', width: width, border: 'none', display: 'block' }} />
+          </DialogContent>
+
+        </DraggableOrNot>
       </Popper>
     </>
-
   );
 }
