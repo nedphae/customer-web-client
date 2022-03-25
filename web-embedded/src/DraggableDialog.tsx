@@ -114,6 +114,9 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
       }
       accessParam.uid = uid;
     }
+    if (!accessParam.title) {
+      accessParam.title = document.title;
+    }
     Cookies.set('xiaobai_uid', accessParam.uid, { expires: 7 })
     return addParam(
       // 修改为服务地址
@@ -148,7 +151,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
         客服
       </Button>
       <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000 }}>
-        <DraggableOrNot bounds={bounds} handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'} >
+        <DraggableOrNot bounds={bounds} handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"],[class*="MuiButtonBase-root"]'} >
           {/* TODO 使用 CSS-in-JS */}
           <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px', zIndex: 100001 }} id="draggable-dialog-title">
             <DialogActions>

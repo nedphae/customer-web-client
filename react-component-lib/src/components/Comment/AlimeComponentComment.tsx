@@ -7,6 +7,8 @@ interface UserInfo {
   readonly shuntId: number;
   readonly userId: number;
   readonly uid: string,
+  readonly referrer?: string,
+  readonly title?: string,
 }
 
 interface DataType {
