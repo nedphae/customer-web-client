@@ -16,7 +16,6 @@ import Draggable, { DraggableBounds, DraggableData, DraggableEvent } from 'react
 import IconButton from '@material-ui/core/IconButton';
 import ForumIcon from '@material-ui/icons/Forum';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import Typography from '@material-ui/core/Typography';
 import { Popper } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -152,7 +151,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
       </Button>
       <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000 }}>
         <DraggableOrNot bounds={bounds} handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"],[class*="MuiButtonBase-root"]'} >
-          {/* TODO 使用 CSS-in-JS */}
+          {/* 使用 CSS-in-JS */}
           <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px', zIndex: 100001 }} id="draggable-dialog-title">
             <DialogActions>
               <IconButton onClick={handleClose} aria-label="delete" size="small">

@@ -1,10 +1,10 @@
-# Getting Started with Create React App
+# 小白客服 JS-web
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+小白客服 Web 弹窗项目源码
 
-## Available Scripts
+## 介绍
 
-In the project directory, you can run:
+此项目是基于 React + Material-UI 开发的客服弹窗项目，
 
 ### `yarn start`
 

@@ -1,34 +1,23 @@
-# react-component-lib React 组件库
+# React ChatUI pro 卡片库
 
-用以开发/测试 React 组件
+用以开发/测试 React [ChatUI pro 自定义卡片模版](https://chatui.io/sdk/custom-component)
 
-This is a boilerplate repository for creating npm packages with React components written in TypeScript and using styled-components.
+注意:
+- ChatUI 自定义卡片是UMD 规范的、名为  AlimeComponent${CodeName} 的 React 组件。
+- 打包时修改 [index.ts](./src/index.ts) 中的 `export default { default: YourComponent };`
+- ChatUI pro 已经包含了 React 和 ChatUI 的包，所以打包时需要过滤掉这两个包，本项目的 [package.json](./package.json) 已经配置过滤
 
-Medium article explaining step by step how to use this repo to publish your own library to NPM:
-https://medium.com/@xfor/developing-publishing-react-component-library-to-npm-styled-components-typescript-cc8274305f5a
 
-## Installation:
+## 生成 ChatUI pro 卡片:
 
-To install all dependencies run:
+要生成ChatUI pro 卡片，再修改 index.ts 后执行:
 
 ```
-npm i
+npm run build
 ```
 
-It will install:
+再 dist 文件夹中将生成 `index.cjs.js` `index.esm.js` 和 `index.umd.js`:
 
-- `dependencies` and `devDependencies` from ./package.json
-- `peerDependencies` from ./package.json thanks to `install-peers-cli`
-- `dependencies` and `devDependencies` from ./example/package.json (example `create react app` for testing)
-
-## Developing your library:
-
-To start developing your library, run `npm run dev`. It will build your library and run example `create-react-app` where you can test your components. Each time you make changes to your library or example app, app will be reloaded to reflect your changes.
-
-## Styled-components:
-
-Developing library with components built with styled-components is challenging because you have to keep only one instance of styled-components. If you would just symlink your library (`file:../` or `npm link`) to example app that is also using styled-components you'll get a console warning about multiple instances of styled-components (even though styled-components are peer dependency) and your styles will be possibly broken. To be able to conveniently develop styled components I am injecting bundled files directly into example app's /src folder and importing it in App.tsx along with type declaration.
-
-## Typescript
-
-This boilerplate lets you develop your libraries in Typescript and you can simultaneously test it in Typescript example create-react-app.
+- `index.umd.js` 即为 ChatUI pro 需要的卡片模板
+- 要安装卡片模板，复制并重命名 `index.umd.js` 到 `chat-server` 的 [src/public/chat/component](../chat-server/src/public/chat/component/README.md) 目录
+- 修改 [setup.js](../chat-server/src/public/chat/setup.js) components 配置项中添加你的组件，具体方法查看 [自定义卡片模版](https://chatui.io/sdk/custom-component)

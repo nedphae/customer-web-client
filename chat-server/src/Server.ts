@@ -70,6 +70,7 @@ app.get('/health', (_req, res) => {
 
 app.get("/chat", (req, res) => {
     res.removeHeader("X-Frame-Options");
+    res.setHeader("SameSite", "None");
     const query = req.query || req.body;
     if (query && query.sc) {
         let cookieUid = req.cookies ? req.cookies["uid"] : null;
@@ -87,7 +88,7 @@ app.get("/chat", (req, res) => {
             mobile: query.mobile,
             vipLevel: query.vipLevel,
             title: query.title,
-            referrer: query.referrer,
+            referrer: req.header('referer'),
             commentView: query.cv,
         };
 
