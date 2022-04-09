@@ -11,7 +11,7 @@ const useStyles = makeStyles({
     width: '60px',
     right: '10px',
     textAlign: 'center',
-    bottom: '30%',
+    bottom: '25%',
     zIndex: 9999,
   },
   AppHeader: {
