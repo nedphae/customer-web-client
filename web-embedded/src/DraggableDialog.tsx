@@ -154,7 +154,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
 
   useInterval(
     () => {
-      // 每 20 秒定时发送用户浏览轨迹
+      // 每 2 分钟定时发送用户浏览轨迹
       if (accessParam.sc && accessParam.uid) {
         const trackUrl = 'https://im.xbcs.top/access/customer/track';
         const userTrack = {
@@ -173,7 +173,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
         })
       }
     },
-    20000,
+    2 * 60000,
     true
   );
 
