@@ -20,7 +20,7 @@ window.initXiaobaiChat = initXiaobaiChat;
 
 // const params: AccessParam = {
 //   // 接待组代码
-//   sc: 'Cxl1TwUHjw',
+//   sc: 'Ml1Q9KLP',
 //   // 可空，uid，企业当前登录用户标识，不传表示匿名用户，由客服系统自动生成
 //   // uid: 'my-company-uid',
 //   // 可空，指定客服 Id，如果不传，则由系统自动分配客服

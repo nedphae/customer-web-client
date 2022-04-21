@@ -17,6 +17,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ForumIcon from '@material-ui/icons/Forum';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import { Popper } from '@material-ui/core';
+import useInterval from './hook/useInterval';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -73,13 +74,7 @@ const addParam = (uri: string, params: UrlParams) => {
   return `${uri}?${str}`;
 };
 
-function PaperComponent(props: PaperProps) {
-  return (
-    <Draggable handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"]'}>
-      <Paper {...props} />
-    </Draggable>
-  );
-}
+
 
 interface DraggableOrNotProps extends PaperProps {
   bounds: DraggableBounds;
@@ -156,6 +151,31 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   };
 
   const width = `${Math.min(460, document.documentElement.clientWidth)}px`;
+
+  useInterval(
+    () => {
+      // 每 20 秒定时发送用户浏览轨迹
+      if (accessParam.sc && accessParam.uid) {
+        const trackUrl = 'https://im.xbcs.top/access/customer/track';
+        const userTrack = {
+          sc: accessParam.sc,
+          uid: accessParam.uid,
+          url: window.location.href,
+          title: document.title,
+        }
+        fetch(trackUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: JSON.stringify(userTrack)
+        })
+      }
+    },
+    20000,
+    true
+  );
 
   // 使用 css in js 替换 
   return (
