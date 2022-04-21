@@ -23,7 +23,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "one-file-build": "npx ./scripts/build.js",
+    "one-file-build": "react-scripts build && npx gulp",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -51,8 +51,9 @@
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
     "@types/uuid": "^8.3.4",
-    "mini-css-extract-plugin": "^1.4.1",
-    "raw-loader": "^4.0.2",
-    "rewire": "^5.0.0"
+    "gulp": "^4.0.2",
+    "gulp-concat": "^2.6.1",
+    "gulp-uglify": "^3.0.2",
+    "raw-loader": "^4.0.2"
   }
 }
