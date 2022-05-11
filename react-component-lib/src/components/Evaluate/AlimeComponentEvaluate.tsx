@@ -110,7 +110,7 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
   const { data, ctx, msgId } = chatUIProp;
   const [evaluate, setEvaluate] = useState<EvaluateParam>({
     ...data.convInfo,
-    evaluationType: 5,
+    evaluationType: 1,
     evaluation: 100,
     evaluationRemark: '',
     userResolvedStatus: 1,

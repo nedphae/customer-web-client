@@ -186,6 +186,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
         className={classes.button}
         onClick={handleClickOpen}
         size="small"
+        component="div"
       >
         <div>
           <ForumIcon />

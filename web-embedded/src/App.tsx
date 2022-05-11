@@ -30,8 +30,6 @@ function App(accessParamProp: AccessParamProp) {
   const { accessParam, customerHost } = accessParamProp
   const classes = useStyles();
 
-  
-
   return (
     <>
       <div className={classes.App}> { /* <div className="App"> */}
