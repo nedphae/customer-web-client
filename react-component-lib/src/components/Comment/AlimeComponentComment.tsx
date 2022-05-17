@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Card, CardTitle, CardContent, CardActions, Button, Input, toast } from '@chatui/core';
+import { Card, CardTitle, CardContent, CardActions, Button, Input, toast } from 'ChatUI';
 
 interface UserInfo {
   readonly organizationId: number;

@@ -31,7 +31,7 @@
     "typescript": "^4.0.5"
   },
   "peerDependencies": {
-    "@chatui/core": "^1.1.2",
+    "ChatUI": "npm:@chatui/core@^1.1.2",
     "react": "^16.14.0",
     "react-dom": "^16.14.0"
   },

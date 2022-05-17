@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Card, CardTitle, CardContent, CardActions, Button, Input, RadioGroup } from '@chatui/core';
+import { Card, CardTitle, CardContent, CardActions, Button, Input, RadioGroup } from 'ChatUI';
 
 interface ConvInfo {
   readonly organizationId: number;
@@ -125,7 +125,7 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
     ctx.util
       .fetchData({
         url: data.url,
-        type: 'PUT',
+        type: 'POST',
         data: evaluate,
       })
       .then(() => {
