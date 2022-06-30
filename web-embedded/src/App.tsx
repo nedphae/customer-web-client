@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 // import './App.css';
-import DraggableDialog, { AccessParamProp } from './DraggableDialog';
+import DraggableDialog, { DraggableDialogProps } from './DraggableDialog';
 import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles({
@@ -11,7 +11,6 @@ const useStyles = makeStyles({
     // width: '60px',
     right: '5px',
     textAlign: 'center',
-    bottom: '25%',
     zIndex: 9999,
   },
   AppHeader: {
@@ -26,16 +25,16 @@ const useStyles = makeStyles({
   },
 });
 
-function App(accessParamProp: AccessParamProp) {
-  const { accessParam, customerHost } = accessParamProp
+function App(accessParamProp: DraggableDialogProps) {
+  const { accessParam, customerHost, styleDIY } = accessParamProp
   const classes = useStyles();
 
   return (
     <>
-      <div className={classes.App}> { /* <div className="App"> */}
+      <div className={classes.App} style={{ bottom: styleDIY?.buttonPosition ?? '5%' }}> { /* <div className="App"> */}
         <div className={classes.AppHeader}> { /** <header className="App-header"> */}
           {/* <img src={logo} className="App-logo" alt="logo" /> */}
-          <DraggableDialog accessParam={accessParam} customerHost={customerHost} />
+          <DraggableDialog accessParam={accessParam} customerHost={customerHost} styleDIY={styleDIY} />
         </div>
       </div>
     </>

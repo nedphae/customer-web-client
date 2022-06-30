@@ -17,6 +17,7 @@ import IconButton from '@material-ui/core/IconButton';
 import ForumIcon from '@material-ui/icons/Forum';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import { Popper } from '@material-ui/core';
+import SvgIcon from '@material-ui/core/SvgIcon';
 import useInterval from './hook/useInterval';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -33,6 +34,14 @@ const useStyles = makeStyles((theme: Theme) =>
       writingMode: "vertical-lr",
     },
   }));
+
+export interface StyleDIY {
+  buttonPosition?: string,
+  text?: string;
+  textColor?: string;
+  backgroundColor?: string;
+  svgStr?: string;
+}
 
 export interface AccessParam extends UrlParams {
   sc: string;
@@ -54,6 +63,7 @@ export interface AccessParamProp {
 }
 
 export interface DraggableDialogProps extends AccessParamProp {
+  styleDIY?: StyleDIY;
 }
 
 interface UrlParams {
@@ -102,7 +112,7 @@ function DraggableOrNot(props: DraggableOrNotProps) {
 
 export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   const classes = useStyles();
-  const { accessParam, customerHost } = accessParamProp;
+  const { accessParam, customerHost, styleDIY } = accessParamProp;
 
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(true);
@@ -194,17 +204,22 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
     <>
       <Button
         variant="contained"
-        color="primary"
         className={classes.button}
         onClick={handleClickOpen}
         size="small"
         component="div"
+        style={{
+          color: styleDIY?.textColor,
+          backgroundColor: styleDIY?.backgroundColor,
+        }}
       >
         <div>
-          <ForumIcon />
-          <div className={classes.buttonText}>
-            客服
-          </div>
+          {styleDIY && styleDIY.svgStr ? (
+            <img src={`data:image/svg+xml;utf8,${encodeURIComponent(styleDIY.svgStr)}`} />
+          ) : (<ForumIcon />)}
+          {styleDIY && styleDIY.text && (<div className={classes.buttonText}>
+            {styleDIY.text}
+          </div>)}
         </div>
       </Button>
       <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000 }}>
