@@ -225,7 +225,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
           </div>)}
         </div>
       </Button>
-      <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000 }}>
+      <Popper open={open} hidden={hidden} anchorEl={null} style={{ zIndex: 100000, height: 0, }}>
         <DraggableOrNot handle="#draggable-dialog-title" cancel={'[class*="MuiDialogContent-root"],[class*="MuiButtonBase-root"]'} >
           {/* 使用 CSS-in-JS */}
           <DialogTitle style={{ cursor: 'move', width: '100%', height: '44px', position: 'absolute', padding: '0px 0px', zIndex: 100001 }} id="draggable-dialog-title">
