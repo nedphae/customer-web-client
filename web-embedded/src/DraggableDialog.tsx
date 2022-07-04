@@ -104,33 +104,59 @@ function DraggableOrNot(props: DraggableOrNotProps) {
   const [position, setPosition] = useState(defaultPosition)
   const draggable = !isMobile; // 判断是否可以拖动
 
-  const onStop = (e: DraggableEvent,
+  const onStop = (_e: DraggableEvent | null,
     data: DraggableData) => {// Viewport (wrapper)
-      const documentElement = document.documentElement
-      const wrapperHeight = (window.innerHeight || documentElement.clientHeight)
-      const wrapperWidth = (window.innerWidth || documentElement.clientWidth)
+    const documentElement = document.documentElement
+    const wrapperHeight = (window.innerHeight || documentElement.clientHeight)
+    const wrapperWidth = (window.innerWidth || documentElement.clientWidth)
 
-      let x = data.x,y = data.y;
+    let x = data.x, y = data.y;
 
-      if (data.y >= wrapperHeight - data.node.clientHeight) {
-        y = wrapperHeight - data.node.clientHeight
-      }
-      if (data.y <= 0) {
-        y = 0
-      }
-      if (data.x >= wrapperWidth - data.node.clientWidth) {
-        x = wrapperWidth - data.node.clientWidth
-      }
-      if (data.x <= 0) {
-        x = 0
-      }
-      const position = {
-        x,
-        y,
-      }
-      
-      setPosition(position);
+    if (data.y >= wrapperHeight - data.node.clientHeight) {
+      y = wrapperHeight - data.node.clientHeight
+    }
+    if (data.y <= 0) {
+      y = 0
+    }
+    if (data.x >= wrapperWidth - data.node.clientWidth) {
+      x = wrapperWidth - data.node.clientWidth
+    }
+    if (data.x <= 0) {
+      x = 0
+    }
+    const position = {
+      x,
+      y,
+    }
+
+    setPosition(position);
   };
+
+  window.addEventListener('resize', function (_event) {
+    const documentElement = document.documentElement
+    const wrapperHeight = (window.innerHeight || documentElement.clientHeight)
+    const wrapperWidth = (window.innerWidth || documentElement.clientWidth)
+    let x = position.x, y = position.y;
+
+    if (position.y >= wrapperHeight - 550) {
+      y = wrapperHeight - 550
+    }
+    if (position.y <= 0) {
+      y = 0
+    }
+    if (position.x >= wrapperWidth - 460) {
+      x = wrapperWidth - 460
+    }
+    if (position.x <= 0) {
+      x = 0
+    }
+    const resizePosition = {
+      x,
+      y,
+    }
+    setPosition(resizePosition);
+  }, true);
+
   return (<>
     {draggable ? (<Draggable position={position} onStop={onStop} handle={handle} cancel={cancel} >
       <Paper {...other} />
