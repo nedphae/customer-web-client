@@ -12,7 +12,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper, { PaperProps } from '@material-ui/core/Paper';
-import Draggable from 'react-draggable';
+import Draggable, { DraggableData, DraggableEvent } from 'react-draggable';
 import IconButton from '@material-ui/core/IconButton';
 import ForumIcon from '@material-ui/icons/Forum';
 import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
@@ -100,10 +100,39 @@ if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elain
 
 function DraggableOrNot(props: DraggableOrNotProps) {
   const { handle, cancel, ...other } = props;
-  const draggable = !isMobile; // 判断是否可以拖动
   const defaultPosition = { x: document.documentElement.clientWidth - 460 - 50, y: document.documentElement.clientHeight - 550 - 50 };
+  const [position, setPosition] = useState(defaultPosition)
+  const draggable = !isMobile; // 判断是否可以拖动
+
+  const onStop = (e: DraggableEvent,
+    data: DraggableData) => {// Viewport (wrapper)
+      const documentElement = document.documentElement
+      const wrapperHeight = (window.innerHeight || documentElement.clientHeight)
+      const wrapperWidth = (window.innerWidth || documentElement.clientWidth)
+
+      let x = data.x,y = data.y;
+
+      if (data.y >= wrapperHeight - data.node.clientHeight) {
+        y = wrapperHeight - data.node.clientHeight
+      }
+      if (data.y <= 0) {
+        y = 0
+      }
+      if (data.x >= wrapperWidth - data.node.clientWidth) {
+        x = wrapperWidth - data.node.clientWidth
+      }
+      if (data.x <= 0) {
+        x = 0
+      }
+      const position = {
+        x,
+        y,
+      }
+      
+      setPosition(position);
+  };
   return (<>
-    {draggable ? (<Draggable bounds="body" handle={handle} defaultPosition={defaultPosition} cancel={cancel} >
+    {draggable ? (<Draggable position={position} onStop={onStop} handle={handle} cancel={cancel} >
       <Paper {...other} />
     </Draggable>) : (
       <Paper {...other} />)}
