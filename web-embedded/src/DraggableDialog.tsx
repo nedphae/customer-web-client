@@ -138,9 +138,10 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   }, []);
 
 
-  const handleClickOpen = (_event: React.MouseEvent<HTMLDivElement>) => {
-    if (isMobile) {
-      // 是移动端就直接跳转页面
+  const handleClickOpen = (newWindow?: boolean) => {
+    // 打开浏览器新窗口参数
+    if (isMobile || newWindow) {
+      // 是移动端就直接打开浏览器新窗口跳转页面
       window.open(url, '_blank');
     } else {
       setOpen(true);
@@ -155,6 +156,8 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
   };
 
   const width = `${Math.min(460, document.documentElement.clientWidth)}px`;
+
+  window.xbWebAPI = { openChatWindow: (newWindow?: boolean) => { handleClickOpen(newWindow) } };
 
   useInterval(
     () => {
@@ -205,7 +208,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
       <Button
         variant="contained"
         className={classes.button}
-        onClick={handleClickOpen}
+        onClick={() => { handleClickOpen() }}
         size="small"
         component="div"
         style={{

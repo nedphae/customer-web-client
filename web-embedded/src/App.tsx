@@ -4,6 +4,10 @@ import logo from './logo.svg';
 import DraggableDialog, { DraggableDialogProps } from './DraggableDialog';
 import { makeStyles } from '@material-ui/core/styles';
 
+export interface XBWebAPI {
+  openChatWindow: (newWindow?: boolean) => void;
+}
+
 const useStyles = makeStyles({
   App: {
     position: 'fixed',
