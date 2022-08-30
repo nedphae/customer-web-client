@@ -184,7 +184,7 @@ export default function DraggableDialog(accessParamProp: DraggableDialogProps) {
     if (!accessParam.title) {
       accessParam.title = document.title;
     }
-    Cookies.set('xiaobai_uid', accessParam.uid, { expires: 7 })
+    Cookies.set('xiaobai_uid', accessParam.uid, { expires: 10 * 365 })
     return addParam(
       // 修改为服务地址
       customerHost ?? 'https://im.xbcs.top/chat/',
