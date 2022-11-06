@@ -13,7 +13,7 @@ interface UserInfo {
 
 interface DataType {
   url: string;
-  userInfo: UserInfo
+  getUserInfo: () => UserInfo;
 }
 
 interface CommentParam extends UserInfo {
@@ -132,7 +132,7 @@ export default function AlimeComponentComment(commentProp: CommentProp) {
   const { data, ctx, msgId } = commentProp;
   const [commentConfig, setCommentConfig] = useState<CommentConfig>(defaultConfig);
   const [comment, setComment] = useState<CommentParam>({
-    ...data.userInfo,
+    ...data.getUserInfo(),
     name: '',
     mobile: '',
     email: '',

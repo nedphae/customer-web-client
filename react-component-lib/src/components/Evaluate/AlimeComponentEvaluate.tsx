@@ -9,7 +9,7 @@ interface ConvInfo {
 
 interface DataType {
   url: string;
-  convInfo: ConvInfo;
+  getConvInfo: () => ConvInfo;
 }
 
 interface EvaluateParam extends ConvInfo {
@@ -141,7 +141,7 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
   const { data, ctx, msgId } = chatUIProp;
   const [evaluateConfig, setEvaluateConfig] = useState<EvaluateConfig>(defaultConfig);
   const [evaluate, setEvaluate] = useState<EvaluateParam>({
-    ...data.convInfo,
+    ...data.getConvInfo(),
     evaluationType: 1,
     evaluation: 100,
     evaluationRemark: '',
