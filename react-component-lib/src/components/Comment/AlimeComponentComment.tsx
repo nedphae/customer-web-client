@@ -1,4 +1,5 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from "react-i18next";
 
 import { Card, CardTitle, CardContent, CardActions, Button, Input, toast } from 'ChatUI';
 
@@ -114,23 +115,10 @@ interface CommentConfig {
   failMsg?: string;
 }
 
-
-const defaultConfig = {
-  "title": "留言",
-  "nameText": "姓名",
-  "mobileText": "手机",
-  "emailText": "邮箱",
-  "messageText": "留言",
-  "placeholder": "请输入...",
-  "cancleBtnText": "取消",
-  "submitBtnText": "提交",
-  "successMsg": "留言提交成功",
-  "failMsg": "姓名 留言 不能为空, 手机/邮箱 请至少填写一项"
-}
-
 export default function AlimeComponentComment(commentProp: CommentProp) {
   const { data, ctx, msgId } = commentProp;
-  const [commentConfig, setCommentConfig] = useState<CommentConfig>(defaultConfig);
+  const { t } = useTranslation();
+
   const [comment, setComment] = useState<CommentParam>({
     ...data.getUserInfo(),
     name: '',
@@ -156,12 +144,12 @@ export default function AlimeComponentComment(commentProp: CommentProp) {
           id: 'leave_comment_result',
           type: 'system',
           content: {
-            text: commentConfig.successMsg,
+            text: t('Comment submitted successfully'),
           },
         });
       });
     } else {
-      toast.fail(commentConfig.failMsg ?? defaultConfig.failMsg);
+      toast.fail(t('Name and Comment cannot be empty, Mobile/Email Please fill in at least one item'));
     }
   }
 
@@ -169,47 +157,34 @@ export default function AlimeComponentComment(commentProp: CommentProp) {
     ctx.deleteMessage(msgId);
   }
 
-  useLayoutEffect(() => {
-    ctx.util.fetchData({
-      url: `/access/customer/props/comment?oid=${comment.organizationId}`,
-      type: 'GET',
-    }).then((data) => {
-      const json = data?.value
-      if (json) {
-        setCommentConfig(JSON.parse(json));
-      }
-    });
-  }, []);
-
-
   return (
     <Card size="xl">
-      <CardTitle>{commentConfig.title}</CardTitle>
+      <CardTitle>{t('Comment')}</CardTitle>
       <CardContent>
         <div>
           {/* 姓名 */}
-          <h5>{commentConfig.nameText} *</h5>
-          <Input value={comment.name} onChange={(val: string) => setValue({ name: val })} placeholder={commentConfig.placeholder} />
+          <h5>{t('Name')} *</h5>
+          <Input value={comment.name} onChange={(val: string) => setValue({ name: val })} placeholder={t('Please enter...')} />
           {/* 手机 */}
-          <h5>{commentConfig.mobileText} *</h5>
-          <Input value={comment.mobile} onChange={(val: string) => setValue({ mobile: val })} placeholder={commentConfig.placeholder} />
+          <h5>{t('Phone')} *</h5>
+          <Input value={comment.mobile} onChange={(val: string) => setValue({ mobile: val })} placeholder={t('Please enter...')} />
           {/* 邮箱 */}
-          <h5>{commentConfig.emailText} *</h5>
-          <Input value={comment.email} onChange={(val: string) => setValue({ email: val })} placeholder={commentConfig.placeholder} />
+          <h5>{t('Email')} *</h5>
+          <Input value={comment.email} onChange={(val: string) => setValue({ email: val })} placeholder={t('Please enter...')} />
           {/* 留言 */}
-          <h5>{commentConfig.messageText} *</h5>
+          <h5>{t('Comment')} *</h5>
           <Input
             rows={3}
             maxLength={120}
             value={comment.message}
             onChange={(val: string) => setValue({ message: val })}
-            placeholder={commentConfig.placeholder}
+            placeholder={t('Please enter...')}
           />
         </div>
       </CardContent>
       <CardActions>
-        <Button onClick={cancle}>{commentConfig.cancleBtnText}</Button>
-        <Button color="primary" onClick={submit}>{commentConfig.submitBtnText}</Button>
+        <Button onClick={cancle}>{t('Cancel')}</Button>
+        <Button color="primary" onClick={submit}>{t('Submit')}</Button>
       </CardActions>
     </Card>
   );

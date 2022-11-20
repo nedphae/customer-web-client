@@ -1,4 +1,5 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from "react-i18next";
 
 import { Card, CardTitle, CardContent, CardActions, Button, Input, RadioGroup } from 'ChatUI';
 
@@ -139,7 +140,8 @@ const defaultConfig = {
 
 export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
   const { data, ctx, msgId } = chatUIProp;
-  const [evaluateConfig, setEvaluateConfig] = useState<EvaluateConfig>(defaultConfig);
+  const { t } = useTranslation();
+
   const [evaluate, setEvaluate] = useState<EvaluateParam>({
     ...data.getConvInfo(),
     evaluationType: 1,
@@ -166,7 +168,7 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
           id: 'evaluate_result',
           type: 'system',
           content: {
-            text: evaluateConfig.thanks ?? '谢谢您的评价',
+            text: t('Thank you for your review'),
           },
         });
       });
@@ -176,49 +178,37 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
     ctx.deleteMessage(msgId);
   }
 
-  useLayoutEffect(() => {
-    ctx.util.fetchData({
-      url: `/access/customer/props/evaluate?oid=${evaluate.organizationId}`,
-      type: 'GET',
-    }).then((data) => {
-      const json = data?.value
-      if (json) {
-        setEvaluateConfig(JSON.parse(json));
-      }
-    });
-  }, []);
-
   const evaluationOptions = [
-    { label: evaluateConfig.evaluationOptions.eval_100, value: 100 },
-    { label: evaluateConfig.evaluationOptions.eval_75, value: 75 },
-    { label: evaluateConfig.evaluationOptions.eval_50, value: 50 },
-    { label: evaluateConfig.evaluationOptions.eval_25, value: 25 },
-    { label: evaluateConfig.evaluationOptions.eval_1, value: 1 },
+    { label: t('Very Satisfied'), value: 100 },
+    { label: t('Satisfied'), value: 75 },
+    { label: t('General'), value: 50 },
+    { label: t('Dissatisfied'), value: 25 },
+    { label: t('Very Dissatisfied'), value: 1 },
   ];
 
   const userResolvedOptions = [
-    { label: evaluateConfig.userResolvedOptions.status_1, value: 1 },
-    { label: evaluateConfig.userResolvedOptions.status_2, value: 2 },
+    { label: t('Resolved'), value: 1 },
+    { label: t('Not Resolved'), value: 2 },
   ];
 
   return (
     <Card size="xl">
-      <CardTitle>{evaluateConfig.title}</CardTitle>
+      <CardTitle>{t('Evaluate')}</CardTitle>
       <CardContent>
         <div>
-          <h5>{evaluateConfig.evaluationOptionsText} *</h5>
+          <h5>{t('Satisfaction')} *</h5>
           <RadioGroup
             value={evaluate.evaluation}
             options={evaluationOptions}
             onChange={(val) => setValue({ evaluation: val })}
           />
-          <h5>{evaluateConfig.evaluationRemarkText}</h5>
+          <h5>{t('Content of Evaluate')}</h5>
           <Input
             value={evaluate.evaluationRemark}
             onChange={(val: string) => setValue({ evaluationRemark: val })}
-            placeholder={evaluateConfig.placeholder}
+            placeholder={t('Please enter...')}
           />
-          <h5>{evaluateConfig.userResolvedStatusText} *</h5>
+          <h5>{t('Resolution Status')} *</h5>
           <RadioGroup
             value={evaluate.userResolvedStatus}
             options={userResolvedOptions}
@@ -227,9 +217,9 @@ export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
         </div>
       </CardContent>
       <CardActions>
-        <Button onClick={cancle}>{evaluateConfig.cancleBtnText}</Button>
+        <Button onClick={cancle}>{t('Cancel')}</Button>
         <Button color="primary" onClick={submit}>
-          {evaluateConfig.submitBtnText}
+          {t('Submit')}
         </Button>
       </CardActions>
     </Card>
