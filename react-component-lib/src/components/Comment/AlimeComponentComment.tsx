@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from "react-i18next";
 
 import { Card, CardTitle, CardContent, CardActions, Button, Input, toast } from 'ChatUI';
 
@@ -117,8 +116,8 @@ interface CommentConfig {
 
 export default function AlimeComponentComment(commentProp: CommentProp) {
   const { data, ctx, msgId } = commentProp;
-  const { t } = useTranslation();
-
+  // const { t } = useTranslation();
+  const t = window.i18n.t; 
   const [comment, setComment] = useState<CommentParam>({
     ...data.getUserInfo(),
     name: '',

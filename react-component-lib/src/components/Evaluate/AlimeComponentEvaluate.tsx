@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from "react-i18next";
 
 import { Card, CardTitle, CardContent, CardActions, Button, Input, RadioGroup } from 'ChatUI';
 
@@ -94,54 +93,10 @@ interface ChatUIProp {
   msgId: string;
 }
 
-interface EvaluateConfig {
-  title?: string;
-  evaluationOptionsText?: string;
-  evaluationOptions: {
-    eval_100?: string;
-    eval_75?: string;
-    eval_50?: string;
-    eval_25?: string;
-    eval_1?: string;
-  };
-  userResolvedOptions: {
-    status_1?: string;
-    status_2?: string;
-  };
-  evaluationRemarkText?: string;
-  userResolvedStatusText?: string;
-  placeholder?: string;
-  cancleBtnText?: string;
-  submitBtnText?: string;
-  thanks?: string;
-}
-
-const defaultConfig = {
-  "title": "评价",
-  "evaluationOptionsText": "满意度",
-  "evaluationOptions": {
-    "eval_100": "非常满意",
-    "eval_75": "满意",
-    "eval_50": "一般",
-    "eval_25": "不满意",
-    "eval_1": "非常不满意"
-  },
-  "userResolvedOptions": {
-      "status_1": "已解决",
-      "status_2": "未解决"
-  },
-  "evaluationRemarkText": "评价内容",
-  "userResolvedStatusText": "解决状态",
-  "placeholder": "请输入...",
-  "cancleBtnText": "取消",
-  "submitBtnText": "提交",
-  "thanks": "谢谢您的评价"
-}
-
 export default function AlimeComponentEvaluate(chatUIProp: ChatUIProp) {
   const { data, ctx, msgId } = chatUIProp;
-  const { t } = useTranslation();
-
+  // const { t } = useTranslation();
+  const t = window.i18n.t; 
   const [evaluate, setEvaluate] = useState<EvaluateParam>({
     ...data.getConvInfo(),
     evaluationType: 1,
